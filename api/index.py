@@ -3,11 +3,20 @@ from pymongo.server_api import ServerApi
 from flask_cors import CORS
 from pymongo import MongoClient
 
+
 app = Flask(__name__)
+
+# Check if the app is running in production or debug mode
+# In production, the environment variable FLASK_ENV should be set to 'production'
+if app.config['ENV'] == 'production':
+    app.config['DEBUG'] = False
+else:
+    app.config['DEBUG'] = True
+
 uri = "mongodb+srv://vaibhavthapliyal31:vaibhavThapliyal_Test@cluster0.mq9esm5.mongodb.net/?retryWrites=true&w=majority"
 CORS(app)
 # Create a new client and connect to the server
-client = MongoClient(uri)
+client = MongoClient(uri, serverApi=ServerApi('1'))
 
 # Send a ping to confirm a successful connection
 try:
