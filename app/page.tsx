@@ -7,8 +7,9 @@ const API_URL = '/api'; // Update with your Flask API URL
 
 export default function Home() {
   const [results, setResults] = useState([]);
+  const [ApiURL, setApiURL] = useState(`${API_URL}/test`);
   const [queryType, setQueryType] = useState('test');
-  const [isDatabaseConnected, setDatabaseConnected] = useState(true); // Assuming initially connected
+  const [isDatabaseConnected, setDatabaseConnected] = useState(false); // Assuming initially not connected
 
   useEffect(() => {
     // Check the database connectivity status here
@@ -55,6 +56,7 @@ export default function Home() {
           }`}
         />
       </div>
+      <h2>API ROUTE : ${API_URL}</h2>
       
     <h1 className="text-2xl font-semibold mb-4">Inventory Expert Query Tester</h1>
     <label className="font-semibold">Select a Query Type:</label>
@@ -62,6 +64,7 @@ export default function Home() {
       className="block select w-auto p-2 mt-2 border rounded mx-auto"
       onChange={(e) => {
         console.log(`Selected query type:${e.target.value}`);
+        setApiURL(e.target.value);
         setQueryType(e.target.value);
       }}
     >
