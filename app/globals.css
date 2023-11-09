@@ -8,89 +8,16 @@
   --background-end-rgb: 255, 255, 255;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
   /* Style the select for dark mode */
-  select {
+  /* select {
     background-color: black;
     color: white;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-    
-}
-
-/* globals.css */
-
-/* body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-} */
-
-.container {
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(255, 146, 36, 0.762);
-  padding: 20px;
-  text-align: center;
-}
-
-/* h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-label {
-  font-weight: bold;
-}
-
-select {
-  width: 100%;
-  padding: 8px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: black;
-}
-
-h3 {
-  font-size: 18px;
-  margin-top: 20px;
-}  */
+  } */
+/* }  */
 

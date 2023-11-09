@@ -1,21 +1,29 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import './globals.css';
+import Nav from './nav';
+import Toast from './toast';
+import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Inventory Xpert',
-  description: 'A NoSQL database tool using Python Flask and MongoDB for efficient inventory management.',
-}
+  title: 'Next.js App Router + NextAuth + Tailwind CSS',
+  description:
+    'A user admin dashboard configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, ESLint, and Prettier.'
+};
 
 export default function RootLayout({
-  children,
+  children
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="h-full bg-gray-50">
+      <body className="h-full">
+        <Suspense fallback={<div>Loading...</div>}>
+          <Nav/>
+        </Suspense>
+        {children}
+        <Toast />
+      </body>
     </html>
-  )
+  );
 }
+
