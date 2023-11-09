@@ -1,33 +1,36 @@
 'use client';
-import { useState, useEffect } from 'react';
-import Router from 'next/navigation';
-import axios from 'axios';
-import './globals.css';
+import { Card, Title, Text } from '@tremor/react';
+import Search from './search';
+import UsersTable from './table';
 
-import { useRouter } from 'next/navigation';
+interface User {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+}
 
-const API_URL = "https://example.com/api";
-
-export default function Page() {
-  const router = useRouter();
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios.get(API_URL);
-      setData(result.data);
-    };
-    fetchData();
-  }, []);
-
-  const handleClick = () => {
-    router.push('/panel');
-  };
+export default async function IndexPage({
+  searchParams
+}: {
+  searchParams: { q: string };
+}) {
+  const search = searchParams.q ?? '';
+  // const result = await sql`
+  //   SELECT id, name, username, email 
+  //   FROM users 
+  //   WHERE name ILIKE ${'%' + search + '%'};
+  // `;
+  const users = [] as User[];
 
   return (
-    <div>
-      <h1>Hello World!</h1>
-      <button onClick={handleClick}>Go to Panel Page</button>
-    </div>
+    <main className="p-4 md:p-10 mx-auto max-w-7xl">
+      <Title>Users</Title>
+      <Text>A list of users retrieved from a Postgres database.</Text>
+      <Search />
+      <Card className="mt-6">
+        <UsersTable users={users} />
+      </Card>
+    </main>
   );
 }
