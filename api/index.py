@@ -9,6 +9,7 @@ from flask_login import UserMixin, current_user, login_required, login_user, log
 from flask_login import LoginManager
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -59,10 +60,17 @@ def test_endpoint():
     return jsonify({'message': 'Flask API is working!'})
 
 # Query Type 1: Select only necessary fields
-@app.route('/api/select-necessary-fields', methods=['GET'])
+@app.route('/api/all-products', methods=['GET'])
 def select_necessary_fields():
     # Use Case: Retrieve names of all products
     selected_data = [product['name'] for product in products_collection.find({}, {'name': 1, '_id': 0})]
+    return jsonify(selected_data)
+
+# Query Type 1: Select only necessary fields
+@app.route('/api/all-customers', methods=['GET'])
+def select_all_customers():
+    # Use Case: Retrieve names of all users
+    selected_data = [customer['name'] for customer in customers_collection.find({}, {'name': 1, '_id': 0})]
     return jsonify(selected_data)
 
 # Query Type 2: Match values in an array
@@ -72,6 +80,19 @@ def match_values_in_array():
     target_category = request.args.get('category')
     matching_data = list(products_collection.find({'category': target_category}))
     return jsonify(matching_data)
+
+@app.route('/api/find-customers-by-name', methods=['GET'])
+def find_customers_by_name():
+    # Use Case: Find customers with a name containing the specified input
+    name = request.args.get('name', '')
+    
+    # Using a regular expression for a case-insensitive search
+    regex_pattern = re.compile(f'.*{re.escape(name)}.*', re.IGNORECASE)
+    
+    # Using $regex in the query to match names containing the specified input
+    matching_data = list(customers_collection.find({'name': {'$regex': regex_pattern}}).sort('name'))
+    selected_data = [customer['name'] for customer in matching_data]
+    return jsonify(selected_data)
 
 # Query Type 3: Match array elements with multiple criteria
 @app.route('/api/match-array-elements-multiple-criteria', methods=['GET'])
