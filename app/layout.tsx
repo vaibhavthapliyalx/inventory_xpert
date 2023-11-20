@@ -1,29 +1,36 @@
+// Importing global styles
 import './globals.css';
-import Nav from './nav';
-import Toast from './toast';
-import { Suspense } from 'react';
 
+// React imports
+import { Suspense } from 'react';
+import Footer from './components/footer';
+
+// Metadata for the layout
 export const metadata = {
-  title: 'Next.js App Router + NextAuth + Tailwind CSS',
+  title: 'Inventory Xpert',
   description:
-    'A user admin dashboard configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, ESLint, and Prettier.'
+    'A user admin dashboard configured with Next.js, Flask, Mongo DB, Tailwind CSS, TypeScript, ESLint, and Prettier.'
 };
 
+// Root layout component
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  // Rendering the layout
   return (
     <html lang="en" className="h-full bg-gray-50">
-      <body className="h-full">
+      <body className="flex flex-col min-h-screen">
         <Suspense fallback={<div>Loading...</div>}>
-          <Nav/>
+          <main className="flex-grow">
+            {children as React.ReactElement}
+          </main>
+          <footer className="mt-auto">
+            <Footer/>
+          </footer>
         </Suspense>
-        {children}
-        <Toast />
       </body>
     </html>
   );
 }
-

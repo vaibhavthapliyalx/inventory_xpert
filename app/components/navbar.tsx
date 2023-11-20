@@ -1,25 +1,34 @@
 'use client';
 
-import { Fragment } from 'react';
-import { usePathname } from 'next/navigation';
+import { Fragment, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import Image from 'next/image';
+import {getProfilePhoto} from '../utils/utilityfunctions';
 
 const navigation = [
   { name: 'Dashboard', href: '/' },
-  { name: 'Playground', href: '/playground' }
+  { name: 'Visualize', href: '/visualize' },
 ];
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Navbar({ user }: { user: any }) {
+interface IProps {
+  user?: any;
+  onLogout: () => void;
+}
+
+export default function Navbar({ user, onLogout }: IProps) {  
   const pathname = usePathname();
+  const router = useRouter();
+  const profilePhoto = getProfilePhoto(user);
+  
 
   return (
     <Disclosure as="nav" className="bg-white shadow-sm">
-      {({ open }) => (
+      {() => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
@@ -72,10 +81,10 @@ export default function Navbar({ user }: { user: any }) {
                       <span className="sr-only">Open user menu</span>
                       <Image
                         className="h-8 w-8 rounded-full"
-                        src={user?.image || 'https://avatar.vercel.sh/leerob'}
+                        src={profilePhoto}
                         height={32}
                         width={32}
-                        alt={`${user?.name || 'placeholder'} avatar`}
+                        alt={`${user?.username || 'placeholder'} avatar`}
                       />
                     </Menu.Button>
                   </div>
@@ -97,7 +106,7 @@ export default function Navbar({ user }: { user: any }) {
                                 active ? 'bg-gray-100' : '',
                                 'flex w-full px-4 py-2 text-sm text-gray-700'
                               )}
-                              onClick={() => {}}
+                              onClick={onLogout}
                             >
                               Sign out
                             </button>
@@ -111,7 +120,7 @@ export default function Navbar({ user }: { user: any }) {
                                 active ? 'bg-gray-100' : '',
                                 'flex w-full px-4 py-2 text-sm text-gray-700'
                               )}
-                              onClick={() => {}}
+                              onClick={() => router.push('/login')}
                             >
                               Sign in
                             </button>
@@ -155,15 +164,15 @@ export default function Navbar({ user }: { user: any }) {
                     <div className="flex-shrink-0">
                       <Image
                         className="h-8 w-8 rounded-full"
-                        src={user.image}
+                        src={profilePhoto}
                         height={32}
                         width={32}
-                        alt={`${user.name} avatar`}
+                        alt={`${user.username} avatar`}
                       />
                     </div>
                     <div className="ml-3">
                       <div className="text-base font-medium text-gray-800">
-                        {user.name}
+                        {user.username}
                       </div>
                       <div className="text-sm font-medium text-gray-500">
                         {user.email}
@@ -172,7 +181,7 @@ export default function Navbar({ user }: { user: any }) {
                   </div>
                   <div className="mt-3 space-y-1">
                     <button
-                      onClick={() => {}}
+                      onClick={onLogout}
                       className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
                       Sign out
@@ -182,7 +191,7 @@ export default function Navbar({ user }: { user: any }) {
               ) : (
                 <div className="mt-3 space-y-1">
                   <button
-                    onClick={() => {}}
+                    onClick={() => router.push('/login')}
                     className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
                     Sign in
