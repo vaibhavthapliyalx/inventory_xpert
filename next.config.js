@@ -12,16 +12,8 @@ const nextConfig = {
     ]
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com'
-      },
-      {
-        protocol: 'https',
-        hostname: 'avatar.vercel.sh'
-      }
-    ]
+    domains: ['localhost'], // Add your domain(s) here
+    loader: 'default',
   }
 }
 
