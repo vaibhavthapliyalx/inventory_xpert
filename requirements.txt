@@ -1,6 +1,7 @@
 Flask==3.0.0
 pymongo==4.6.0
 Flask-Cors==4.0.0
+Flask-Login==0.6.3
 bcrypt==4.0.1
 cryptography==41.0.5
 Flask-Migrate==4.0.5
