@@ -1,29 +1,37 @@
+# Name of the workflow
 name: Run tests
 
+# Events that trigger the workflow
 on:
+  # Trigger the workflow on push events to the main branch
   push:
     branches:
       - main
+  # Also trigger the workflow on pull request events to the main branch
   pull_request:
     branches:
       - main
 
+# Jobs that the workflow will run
 jobs:
+  # Name of the job
   test:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.7, 3.8, 3.9]
 
+    # Steps that the job will run
     steps:
+    # Checks out a copy of your repository on the runner
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
+    # Sets up the specified Python version
+    - name: Set up Python 3.11
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.11'
 
+    # Caches dependencies to speed up the workflow
     - name: Cache dependencies
       uses: actions/cache@v2
       with:
@@ -32,10 +40,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    # Installs dependencies
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    # Runs tests
     - name: Run tests
       run: pytest
