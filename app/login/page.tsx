@@ -1,7 +1,7 @@
-// pages/LoginPage.tsx
 "use client";
-// pages/LoginPage.tsx
-import { useState } from 'react';
+
+import { use, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/solid';
 import CoreConnector from '../InterfaceAPI/CoreConnector';
@@ -14,6 +14,23 @@ const LoginPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
+
+
+  // If user is already logged in, redirect to home page.
+  useEffect(() => {
+    async function checkLoggedIn() {
+      coreConnectorInstance.getLoggedInAdmin()
+      .then((result) => {
+        console.log(result);
+        router.push('/');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+    checkLoggedIn();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -42,7 +59,13 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div className="max-w-md w-full bg-white p-8 rounded-md shadow-md">
       <div className="text-center mb-6">
-          <LockClosedIcon className="mx-auto h-12 w-auto text-indigo-600" />
+        <Image
+          src={require('../../public/assets/logo_stretched.png')}
+          alt="Logo"
+          width={130}
+          height={100}
+          className="mx-auto h-auto w-auto my-4"
+        />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
           <p className="mt-2 text-sm text-gray-600">
           New User?{' '}

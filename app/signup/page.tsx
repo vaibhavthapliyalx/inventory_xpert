@@ -1,11 +1,12 @@
 "use client";
 // pages/signup.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CoreConnector from '../InterfaceAPI/CoreConnector';
+import Image from 'next/image';
 import { Transition } from '@headlessui/react';
 import { Admin, Gender } from '../interface/CommonInterface';
-import { ExclamationCircleIcon, KeyIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { ExclamationCircleIcon,EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { getProfilePhotoName } from '../utils/utilityfunctions';
 
 const coreConnectorInstance = CoreConnector.getInstance();
@@ -23,6 +24,21 @@ const SignupPage: React.FC = () => {
     id: '',
     gender: Gender.Female
   });
+
+  // If user is already logged in, redirect to home page.
+  useEffect(() => {
+    async function checkLoggedIn() {
+      coreConnectorInstance.getLoggedInAdmin()
+      .then((result) => {
+        console.log(result);
+        router.push('/');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+    checkLoggedIn();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -66,7 +82,13 @@ const SignupPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div className="max-w-md w-full bg-white p-8 rounded-md shadow-md">
       <div className="text-center mb-6">
-      <KeyIcon className="mx-auto h-12 w-auto text-indigo-600" />
+      <Image
+        src={require('../../public/assets/logo_stretched.png')}
+        alt="Logo"
+        width={130}
+        height={100}
+        className="mx-auto h-auto w-auto my-4"
+      />
         <h2 className="text-3xl font-extrabold text-gray-900">Create an Account</h2>
         <p className="mt-2 text-sm text-gray-600">
           Already a user?{' '}

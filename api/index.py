@@ -25,16 +25,11 @@ admins_collection = db['admins']
 blacklist = db['blacklist']
 app.config['SECRET_KEY'] = 'secret_key'
 
-# Path for uploading and serving images
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Set max upload size to 16MB
-
 # Create unique index for username and email in admins collection
 admins_collection.create_index([('username', 1)], unique=True)
 admins_collection.create_index([('email', 1)], unique=True)
 
-
+# JWT Authentication, A decorator to check for a valid token
 def jwt_required(func):
     @wraps(func)
     def jwt_required_wrapper(*args, **kwargs):
@@ -51,11 +46,6 @@ def jwt_required(func):
     return jwt_required_wrapper
 
 
-# Helper function to check allowed file extensions
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png', 'gif'}
-
-
 @app.route('/api/db_connectivity', methods=['GET'])
 def databaseStats():
     return client.admin.command('ping')
@@ -65,6 +55,7 @@ def serverStats():
     return jsonify({'message': 'Flask API is working!'})
 
 # Query Type 1: Select only necessary fields
+#Implented in the frontend
 @app.route('/api/all-products', methods=['GET'])
 def select_necessary_fields():
     # Use Case: Retrieve names of all products
@@ -72,34 +63,85 @@ def select_necessary_fields():
     return jsonify(selected_data)
 
 # Query Type 1: Select only necessary fields
+#Implented in the frontend
 @app.route('/api/all-customers', methods=['GET'])
 def select_all_customers():
-    # Use Case: Retrieve names of all users
+    # Use Case: Retrieve all users
     selected_data = list(customers_collection.find({}))
     return jsonify(selected_data)
 
+#Implented in the frontend
 @app.route('/api/all-orders', methods=['GET'])
 def select_all_orders():
-    # Use Case: Retrieve names of all users
     selected_data = list(orders_collection.find({}))
     return jsonify(selected_data)
 
-@app.route('/api/find-orders-by-order_ids', methods=['GET'])
+#Implented in the frontend
+@app.route('/api/find-orders-by-order-ids', methods=['GET'])
 def find_orders_by_order_ids():
     # Use Case: Retrieve names of all users
-    order_ids = request.args.getlist('order_ids')
+    order_ids = request.args.getlist('order_ids', type=int)
     selected_data = list(orders_collection.find({'_id': {'$in': order_ids}}))
-    return jsonify(selected_data)
+
+    if selected_data is None or len(selected_data) == 0:
+        return make_response(jsonify({'error': order_ids}), 404)
+    return make_response(jsonify(selected_data),200)
+
+#Implented in the frontend
+@app.route('/api/get-customer-by-customer-id', methods=['GET'])
+def find_customer_by_customer_id():
+    customer_id = request.args.get('customer_id', type=int)
+    # Use Case: Retrieve a user by their ID
+    try:
+        selected_data = customers_collection.find_one({'_id': customer_id})
+        if selected_data is None:
+            return make_response(jsonify({'error': 'No customer found.', "See": customer_id}), 404)
+        return make_response(jsonify(selected_data),200)
+    except Exception as e:
+        return make_response(jsonify({'error': 'An error occurred while fetching the customer.', 'details': str(e)}), 500)
+
+#Implented in the frontend
+@app.route('/api/find-customers-by-membership-status', methods=['GET'])
+def find_customers_by_membership_status():
+    try:
+        # Use Case: Find customers by their membership status
+        target_status = request.args.get('membership_status')
+        if not target_status:
+            return make_response(jsonify({"error": "Missing membership_status parameter"}), 400)
+        matching_data = list(customers_collection.find({'membership_status': target_status}))
+        if not matching_data:
+            return make_response(jsonify({"error": "No customers found with the provided membership status"}), 404)
+        return make_response(jsonify(matching_data), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+#Implented in the frontend
+@app.route('/api/find-products-by-product-ids', methods=['GET'])
+def find_products_by_product_ids():
+    product_ids = request.args.getlist('product_ids', type=int)
+    
+    # Assuming you have a 'products' collection in your MongoDB
+    products = list(products_collection.find({'_id': {'$in': product_ids}}))
+    if products is None or len(products) == 0:
+        return make_response(jsonify({'error': 'No products found.'}), 404)
+    return make_response(jsonify(products),200)
 
 # Query Type 2: Match values in an array
-@app.route('/api/find-products-by-category', methods=['GET'])
+#Implented in the frontend
+@app.route('/api/find-products-by-multiple-categories', methods=['GET'])
 def find_products_by_category():
-    # Use Case: Find products of a specific category
-    target_category = request.args.get('category')
-    matching_data = list(products_collection.find({'category': target_category}))
-    return jsonify(matching_data)
+    try:
+        # Use Case: Find products of a specific category
+        target_category = request.args.getlist('category', type=str)
+        matching_data = list(products_collection.find({'category': {'$in': target_category}}))
+        if not matching_data or len(matching_data) == 0:
+            return make_response(jsonify({"error": "No products found for the specified category."}), 404)
+        return jsonify(matching_data), 200
+    except Exception as e:
+        return make_response(jsonify({"error": e }), 500)
 
 # Query Type 3: Match array elements with multiple criteria
+# Query Type 7: Match elements in arrays with criteria
 @app.route('/api/find-products-within-price-range', methods=['GET'])
 def find_products_within_price_range():
     # Use Case: Find products within a price range
@@ -108,15 +150,26 @@ def find_products_within_price_range():
     matching_data = list(products_collection.find({'price': {'$gte': min_price, '$lte': max_price}}))
     return jsonify(matching_data)
 
-# Query Type 4: Match arrays containing all specified elements
-@app.route('/api/find-products-by-multiple-categories', methods=['GET'])
-def match_arrays_containing_elements():
-    # Use Case: Find products that belong to all specified categories
-    target_categories = request.args.getlist('categories')
-    matching_data = list(products_collection.find({'category': {'$all': target_categories}}))
-    return jsonify(matching_data)
+#Query Type 4: Match arrays containing all specified elements
+# Query Type 8: Match arrays with all elements specified
+
+# @app.route('/api/', methods=['GET']) ####### Needs to be fixed#################
+# def match_arrays_containing_elements():
+#     # Use Case: Find products that belong to all specified categories
+#     target_categories = request.args.getlist('categories')
+#     matching_data = list(products_collection.find({'category': {'$all': target_categories}}))
+#     return make_response(jsonify(matching_data), 200)
+
+# @app.route('/api/find-customers-by-prev-orders', methods=['GET'])
+# def find_customers_by_prev_orders():
+#     # Use Case: Find customers who have placed specific orders
+#     target_orders = request.args.getlist('orders')
+#     matching_data = list(customers_collection.find({'previous_orders': {'$all': target_orders}}))
+#     return jsonify(matching_data)
+
 
 # Query Type 5: Iterate over result sets
+#Implented in the frontend
 @app.route('/api/products-sorted-by-price', methods=['GET'])
 def products_sorted_by_price():
     # Use Case: Perform custom action for each product, sorted by price in order specified by query parameter
@@ -127,41 +180,34 @@ def products_sorted_by_price():
         sort_order = ASCENDING
 
     result = [product for product in products_collection.find().sort('price', sort_order)]
-    return jsonify(result)
+    return make_response(jsonify(result), 200)
 
 # Query Type 6: Query embedded documents and arrays
+#Implented in the frontend
 @app.route('/api/find-customer-by-email', methods=['GET'])
 def find_customer_by_email():
     # Use Case: Find customers by their email address
     target_email = request.args.get('email')
-    matching_data = list(customers_collection.find({'contact.email': target_email}))
-    return jsonify(matching_data)
+    if not target_email:
+        return make_response(jsonify({"error": "Missing email parameter"}), 400)
+    try:
+        matching_data = list(customers_collection.find({'contact.email': target_email}))
+        return jsonify(matching_data)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
 
-# Query Type 7: Match elements in arrays with criteria
-@app.route('/api/find-customers-by-membership-status', methods=['GET'])
-def find_customers_by_membership_status():
-    # Use Case: Find customers by their membership status
-    target_status = request.args.get('membership_status')
-    matching_data = list(customers_collection.find({'membership_status': {'$elemMatch': {'$eq': target_status}}}))
-    return jsonify(matching_data)
-
-# Query Type 8: Match arrays with all elements specified
-@app.route('/api/find-customers-by-prev-orders', methods=['GET'])
-def find_customers_by_prev_orders():
-    # Use Case: Find customers who have placed specific orders
-    target_orders = request.args.getlist('orders')
-    matching_data = list(customers_collection.find({'previous_orders': {'$all': target_orders}}))
-    return jsonify(matching_data)
 
 # Query Type 9: Perform text search
+# Implented in the frontend
 @app.route('/api/search-products-by-name', methods=['GET'])
 def search_products_by_name():
     # Use Case: Search for products by name (case-insensitive)
     search_query = request.args.get('query')
-    matching_data = list(products_collection.find({'name': {'$regex': search_query, '$options': 'i'}})).sort('name')
+    matching_data = list(products_collection.find({'name': {'$regex': search_query, '$options': 'i'}}).sort('name'))
     return jsonify(matching_data)
 
 # Query Type 9: Perform text search
+# Implented in the frontend
 @app.route('/api/search-customers-by-name', methods=['GET'])
 def find_customers_by_name():
     # Use Case: Find customers with a name containing the specified input
@@ -169,13 +215,10 @@ def find_customers_by_name():
     matching_data = list(customers_collection.find({'name': {'$regex': search_query, '$options': 'i'}}).sort('name'))
     return jsonify(matching_data)
 
-# Query Type 10: Perform a left outer join
-from flask import request
-
-@app.route('/api/retrieve-orders-with-customer-details', methods=['GET'])
+# Query Type 10: Left outer join. Retrieve orders with customer details
+@app.route('/api/get-orders-with-customer-details', methods=['GET'])
 def retrieve_orders_with_customer_details():
-    # Use Case: Retrieve orders with customer details for multiple items
-    items = request.args.getlist('products')  # Get list of items from query parameters
+    product_ids = [int(id) for id in request.args.getlist('product_ids')]  # Get list of product IDs from query parameters
     lookup_doc = {
         'from': 'customers',
         'localField': 'customer_id',
@@ -183,10 +226,13 @@ def retrieve_orders_with_customer_details():
         'as': 'customer'
     }
     match_doc = {
-        '$match': {'item': {'$in': items}}
+        '$match': {'products.product_id': {'$in': product_ids}}
     }
     result = list(orders_collection.aggregate([match_doc, {'$lookup': lookup_doc}, {'$unwind': '$customer'}]))
-    return jsonify(result)
+
+    if result is None or len(result) == 0:
+        return make_response(jsonify({'error': 'No orders found.'}), 404)
+    return make_response(jsonify(result), 200)
 
 # Ask Patrick about this (Data Transformations)
 # Query Type 11: Data transformations
@@ -216,7 +262,7 @@ def deconstruct_array():
                 'quantity': product['quantity']
             }
             result.append(new_order)
-    return jsonify(result)
+    return make_response(jsonify(result))
 
 # Query Type 13: MapReduce
 @app.route('/api/map-reduce', methods=['GET'])
@@ -236,7 +282,7 @@ def map_reduce():
     return jsonify([{'_id': item['_id'], 'average_price': item['value']} for item in db['average_prices_by_category'].find()])
 
 # Query Type 14: Use aggregation expressions
-@app.route('/api/aggregation', methods=['GET'])
+@app.route('/api/total-sales-per-customer', methods=['GET'])
 def aggregation():
     # Use Case: Calculate the total sales per customer
     pipeline = [
@@ -254,118 +300,21 @@ def aggregation():
     return jsonify(list(result))
 
 # Query Type 15: Conditional Update
-@app.route('/api/conditional-update', methods=['POST'])
-def conditional_update():
-    # Use Case: Mark orders as 'Completed' where delivery_status is 'Delivered'
-    filter_criteria = {'delivery_status': 'Delivered'}
-    update_criteria = {'$set': {'delivery_status': 'Completed'}}
-    result = orders_collection.update_many(filter_criteria, update_criteria)
-    return jsonify({'matched_count': result.matched_count, 'modified_count': result.modified_count})
-
-# Create (POST) operation to add a new product
-@app.route('/api/products', methods=['POST'])
-def add_product():
-    # Use Case: Add a new product
-    if 'name' not in request.form or 'price' not in request.form or 'category' not in request.form:
-        return jsonify({'error': 'Name, price, and category are required.'}), 400
-
-    name = request.form['name']
-    price = float(request.form['price'])
-    category = request.form['category']
+#Implented in the frontend
+@app.route('/api/update-order-status', methods=['POST'])
+def update_order_status():
+    # Use Case: Update the status of an order
+    order_data = request.get_json()
+    order_id = order_data['order_id']
+    order_status = order_data['order_status']
+    result = orders_collection.update_one({'_id': order_id}, {'$set': {'order_status': order_status}})
     
-    # Handle image file upload (if provided)
-    if 'image' in request.files:
-        image_file = request.files['image']
-        if image_file and allowed_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            image_file.save(image_path)
-        else:
-            return jsonify({'error': 'Invalid image file.'}), 400
+    if result.matched_count > 0:
+        return make_response(jsonify({'message': f'Order {order_id} marked as {order_status} successfully !'}), 200)
     else:
-        image_path = None
-
-    product = {
-        'name': name,
-        'price': price,
-        'category': category,
-        'image_path': image_path
-    }
-
-    result = products_collection.insert_one(product)
-    return jsonify({'message': 'Product added successfully!', 'product_id': str(result.inserted_id)})
-
-# Retrieve (GET) operation to get product details
-@app.route('/api/products/<product_id>', methods=['GET'])
-def get_product(product_id):
-    # Use Case: Get product details by ID
-    product = products_collection.find_one({'_id': ObjectId(product_id)})
-    if product is None:
-        return jsonify({'error': 'Product not found.'}), 404
-    return jsonify(product)
-
-# Update (PUT) operation to update product details
-@app.route('/api/products/<product_id>', methods=['PUT'])
-def update_product(product_id):
-    # Use Case: Update product details
-    if 'name' not in request.form or 'price' not in request.form or 'category' not in request.form:
-        return jsonify({'error': 'Name, price, and category are required.'}), 400
-
-    name = request.form['name']
-    price = float(request.form['price'])
-    category = request.form['category']
-
-    # Handle image file upload (if provided)
-    if 'image' in request.files:
-        image_file = request.files['image']
-        if image_file and allowed_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            image_file.save(image_path)
-        else:
-            return jsonify({'error': 'Invalid image file.'}), 400
-    else:
-        image_path = None
-
-    result = products_collection.update_one(
-        {'_id': ObjectId(product_id)},
-        {
-            '$set': {
-                'name': name,
-                'price': price,
-                'category': category,
-                'image_path': image_path
-            }
-        }
-    )
-    
-    if result.modified_count == 0:
-        return jsonify({'error': 'Product not found or no changes were made.'}), 404
-    return jsonify({'message': 'Product updated successfully!'})
-
-# Delete (DELETE) operation to remove a product
-@app.route('/api/products/<product_id>', methods=['DELETE'])
-def delete_product(product_id):
-    # Use Case: Delete a product
-    result = products_collection.delete_one({'_id': ObjectId(product_id)})
-    if result.deleted_count == 0:
-        return jsonify({'error': 'Product not found.'}), 404
-    return jsonify({'message': 'Product deleted successfully!'})
-
-# Serve images
-@app.route('/api/uploads/<filename>', methods=['GET'])
-def serve_image(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-class Admin(UserMixin):
-    def __init__(self, admin_id, username, dob, profile_photo):
-        self.id = admin_id
-        self.username = username
-        self.dob = dob
-        self.profile_photo = profile_photo
+        return make_response(jsonify({'message': 'Failed to update the status for this order. Please try again!'}), 404)
 
 
-# ...
 
  #User signup (POST) operation
 
@@ -419,7 +368,7 @@ def login():
                 'id': str(admin['_id']),  # Convert ObjectId to string
                 'user': admin['username'],
                 'iat': datetime.datetime.utcnow(),
-                'exp': datetime.datetime.utcnow() + datetime. timedelta(minutes=30)
+                'exp': datetime.datetime.utcnow() + datetime. timedelta(hours=24)
             }, app.config['SECRET_KEY'])
             return make_response(jsonify({'token': token}), 200)
         else:
@@ -469,7 +418,7 @@ def get_logged_in_admin():
                 'profile_photo': admin['profile_photo'],
             }), 200
         else:
-            # If the admin does not exist, return an     error
+            # If the admin does not exist, return an error
             return jsonify({'message': 'Admin not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500

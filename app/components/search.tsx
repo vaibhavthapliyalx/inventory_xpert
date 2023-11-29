@@ -37,7 +37,7 @@ export default function Search({ disabled }: { disabled?: boolean }) {
         id="search"
         disabled={disabled}
         className="h-10 block w-full rounded-md border border-gray-200 pl-9 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        placeholder="Search by name..."
+        placeholder="What are you looking for?"
         spellCheck={false}
         onChange={(e) => handleSearch(e.target.value)}
       />
