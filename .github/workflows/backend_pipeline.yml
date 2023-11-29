@@ -1,5 +1,5 @@
 # Name of the workflow
-name: Run tests
+name: Testing Server
 
 # Events that trigger the workflow
 on:
@@ -15,18 +15,18 @@ on:
 # Jobs that the workflow will run
 jobs:
   # Name of the job
-  test:
-    # The type of runner that the job will run on
+  Running_Flask_tests:
+    
     runs-on: ubuntu-latest
 
     # Steps that the job will run
     steps:
     # Checks out a copy of your repository on the runner
-    - name: Check out code
+    - name: Checkout branch
       uses: actions/checkout@v2
 
     # Sets up the specified Python version
-    - name: Set up Python 3.11.5
+    - name: Set up Python to v3.11.5
       uses: actions/setup-python@v2
       with:
         python-version: '3.11.5'
