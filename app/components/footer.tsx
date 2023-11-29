@@ -60,58 +60,54 @@ const Footer = () => {
     };
   
     return (
-      <footer className="bg-black py-4 text-white mt-auto">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-
-          {/* All Systems Operational */}
-          <div>
-            <p className="text-sm mb-1">Connection Status</p>
-            <div className="flex items-center space-x-2">
-              {/* Database Status */}
-              <p className="flex items-center text-sm">
-                Database:
-                <span
-                  className={`ml-2 h-3 w-3 mr-2 rounded-full ${
-                    isDatabaseConnected ? 'bg-green-500' : 'bg-red-500'
-                  }`}
-                />
-              </p>
-
-              {/* Server Status */}
-              <p className="flex items-center text-sm">
-                Server:
-                <span
-                  className={`ml-2 h-3 w-3 rounded-full ${
-                    isServerConnected ? 'bg-green-500' : 'bg-red-500'
-                  }`}
-                />
-              </p>
-            </div>
-          </div>
-        </div>
-        
-
-        {/* Copyright and Language Selector */}
+      <footer className="bg-white py-4 text-black mt-auto">
+  <div className="container mx-auto flex justify-between items-center">
+    <div className="flex items-center space-x-4">
+      {/* All Systems Operational */}
+      <div>
+        <p className="text-sm mb-1">Connection Status</p>
         <div className="flex items-center space-x-2">
-        <Image
-            src={require('../../public/assets/male.png')}
-            alt="Logo"
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
-          <p className="text-sm">&copy; 2023 Inventory Xpert </p>
-        </div>
+          {/* Database Status */}
+          <p className="flex items-center text-sm">
+            Database:
+            <span
+              className={`ml-2 h-3 w-3 mr-2 rounded-full ${
+                isDatabaseConnected ? 'bg-green-500' : 'bg-red-500'
+              }`}
+            />
+          </p>
 
-        <div className="flex items-center space-x-2">
-          <GlobeAltIcon className="h-5 w-5" />
-          <p className="text-sm">English (United Kingdom)</p>
+          {/* Server Status */}
+          <p className="flex items-center text-sm">
+            Server:
+            <span
+              className={`ml-2 h-3 w-3 rounded-full ${
+                isServerConnected ? 'bg-green-500' : 'bg-red-500'
+              }`}
+            />
+          </p>
         </div>
-
-        
       </div>
-    </footer>
+    </div>
+
+    {/* Copyright and Language Selector */}
+    <div className="flex items-center space-x-2 flex-col">
+      <p className="text-sm flex-row">
+        &copy; 2023 Inventory Xpert. All rights reserved.
+      </p>
+      <p className="text-sm flex-row">
+        Made with &#9829; by Vaibhav.
+      </p>
+    </div>
+
+    <div className="flex items-center space-x-2">
+      <GlobeAltIcon className="h-5 w-5" />
+      <p className="text-sm">English (United Kingdom)</p>
+    </div>
+  </div>
+</footer>
+
+
     );
   };
   

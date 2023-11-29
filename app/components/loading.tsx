@@ -1,14 +1,23 @@
 'use client';
-import { Title, Text } from '@tremor/react';
-import Search from './search';
 
-export default function Loading() {
+export default function LoadingAnimation() {
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <Title>Users</Title>
-      <Text>A list of all users retrieved from MongoDB database.</Text>
-      <Search disabled />
-      <div className="tremor-base tr-relative tr-w-full tr-mx-auto tr-text-left tr-ring-1 tr-mt-6 tr-max-w-none tr-bg-white tr-shadow tr-border-blue-400 tr-ring-gray-200 tr-pl-6 tr-pr-6 tr-pt-6 tr-pb-6 tr-rounded-lg h-[360px]" />
+      <div className="absolute right-0 top-0 bottom-0 flex items-center justify-center">
+        <svg
+          className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+      </div>
     </main>
   );
 }

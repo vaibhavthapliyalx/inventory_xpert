@@ -3,7 +3,7 @@ export interface Customer {
   name: string;
   contact: ContactDetails;
   membershipStatus: string;
-  previousOrders: Orders["id"][];
+  previousOrders: Order["id"][] | string[];
 }
 export interface Product {
   id: number;
@@ -14,12 +14,17 @@ export interface Product {
   description: string;
 }
 
-export interface Orders {
+export interface Order {
   id: number;
   customerId: number;
-  productId: number;
+  products: Array<{
+    productId: number;
+    quantity: number;
+  }>,
   orderDate: string;
-  quantity: number;
+  totalPrice: number;
+  deliveryStatus: string;
+  orderStatus: string | OrderStatus;
 }
 
 export interface ContactDetails {
@@ -50,3 +55,45 @@ export interface Admin {
     Female = "female.png",
     Default = "avatar_placeholder.png"
   }
+
+  export interface JointCustomerWithOrders {
+    orderId: number;
+    customerId: number;
+    customer: Customer;
+    products: {
+      productId: number;
+      quantity: number;
+    }[];
+    orderDate: string;
+    totalPrice: number;
+    deliveryStatus: string;
+  }
+
+export enum SortOrder {
+  Ascending = "asc",
+  Descending = "desc"
+}
+
+export enum TableType {
+  Customer = "customer",
+  Product = "product",
+  Order = "order"
+}
+export enum MembershipStatus{
+  Member = 'Member',
+  NonMember = 'Non-member',
+}
+
+export enum OrderStatus{
+  OrderReceived = 'Order Received',
+  PreparingForDispatch = 'Preparing for Dispatch',
+  Dispatched = 'Dispatched',
+  InTransit = 'In Transit',
+  Delivered = 'Delivered',
+}
+export enum BannerType {
+  Success = "Success",
+  Error = "Error"
+}
+
+  
