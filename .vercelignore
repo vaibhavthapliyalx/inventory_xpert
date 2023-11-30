@@ -1,4 +1,5 @@
-**/test_*.py
-**/*.lock
-package-lock.json
-../.yml
+**/*test_*.py
+**/*.*.lock
+*package-lock.json
+*../*.yml
+*README.md
