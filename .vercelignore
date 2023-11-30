@@ -2,4 +2,4 @@
 **/*.*.lock
 *package-lock.json
 *../*.yml
-*README.md
+*.md
