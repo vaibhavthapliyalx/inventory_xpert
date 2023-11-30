@@ -1,0 +1,7 @@
+**/test_*.py
+node_modules/**
+**/*.config.js
+**/*.lock
+package-lock.json
+yarn.lock
+../.yml
