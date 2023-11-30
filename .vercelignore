@@ -1,0 +1,5 @@
+**/*test_*.py
+**/*.*.lock
+*package-lock.json
+*../*.yml
+*.md
