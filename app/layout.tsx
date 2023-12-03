@@ -9,7 +9,8 @@ import Footer from './components/footer';
 export const metadata = {
   title: 'Inventory Xpert',
   description:
-    'A user admin dashboard configured with Next.js, Flask, Mongo DB, Tailwind CSS, TypeScript, ESLint, and Prettier.'
+    `A user admin dashboard configured with Next.js, Flask and MongoDB.
+    COM 517 - Non-Relational Database Development Coursework.`
 };
 
 // Root layout component

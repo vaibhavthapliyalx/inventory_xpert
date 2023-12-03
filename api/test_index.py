@@ -13,3 +13,5 @@ def test_get_all_orders(client):
 
 def test_get_orders_with_customer_details(client):
     response = client.get('/api/get-orders-with-customer-details', query_string={'product_ids': [1, 2]})
+    assert response.status_code == 200
+

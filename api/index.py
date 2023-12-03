@@ -1,35 +1,44 @@
-import datetime
+# Import the modules.
+from datetime import datetime, timedelta
 from flask import Flask, make_response, request, jsonify
 from flask_cors import CORS
 import jwt
 from pymongo import ASCENDING, DESCENDING, MongoClient
 from bson import ObjectId
-from werkzeug.utils import secure_filename
-import os
-from flask import send_from_directory
-from flask_login import UserMixin
 from functools import wraps
 import bcrypt
+from dotenv import load_dotenv
+import os
 
+# Load environment variables file.
+# Here, for security reasons, we are storing the database credentials in a .env file.
+# This file is ignored by Git thus ensuring security of our application.
+load_dotenv()
+
+# Create the Flask app.
 app = Flask(__name__)
 CORS(app)
 
 # Connect to MongoDB
-uri = "mongodb+srv://vaibhavthapliyal31:vaibhavThapliyal_Test@cluster0.mq9esm5.mongodb.net/?retryWrites=true&w=majority"
+uri = os.getenv('MONGO_URI')
 client = MongoClient(uri)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# Connecting to the database and its collections.
 db = client['ikea_database']
 products_collection = db['products']
 customers_collection = db['customers']
 orders_collection = db['orders']
 admins_collection = db['admins']
 blacklist = db['blacklist']
-app.config['SECRET_KEY'] = 'secret_key'
 
-# Create unique index for username and email in admins collection
+
+# Creating unique index for username and email in admins collection.
+# This ensures that no two admins can have the same username or email.
 admins_collection.create_index([('username', 1)], unique=True)
 admins_collection.create_index([('email', 1)], unique=True)
 
-# JWT Authentication, A decorator to check for a valid token
+# JWT Authentication, A decorator to check for a valid token.
 def jwt_required(func):
     @wraps(func)
     def jwt_required_wrapper(*args, **kwargs):
@@ -45,36 +54,45 @@ def jwt_required(func):
         return func(*args, **kwargs)
     return jwt_required_wrapper
 
-
+# Checking for database connectivity.
 @app.route('/api/db_connectivity', methods=['GET'])
 def databaseStats():
     return client.admin.command('ping')
 
+# Checking for server connectivity.
 @app.route('/api/server_connectivity', methods=['GET'])
 def serverStats():
     return jsonify({'message': 'Flask API is working!'})
 
-# Query Type 1: Select only necessary fields
-#Implented in the frontend
+# Query Type 1: Select only necessary fields.
+# This endpoint returns all products.
 @app.route('/api/all-products', methods=['GET'])
 def select_necessary_fields():
-    # Use Case: Retrieve names of all products
-    selected_data = list (products_collection.find({}))
-    return jsonify(selected_data)
+    try:
+        selected_data = list (products_collection.find({}))
+        return make_response(jsonify(selected_data))
+    except Exception as e:
+        return make_response(jsonify({'error': 'An error occurred while fetching the products.', 'details': str(e)}), 500)
 
-# Query Type 1: Select only necessary fields
-#Implented in the frontend
+# Query Type 1: Select only necessary fields.
+# This endpoint returns all customers.
 @app.route('/api/all-customers', methods=['GET'])
 def select_all_customers():
-    # Use Case: Retrieve all users
-    selected_data = list(customers_collection.find({}))
-    return jsonify(selected_data)
+    try:
+        selected_data = list (customers_collection.find({}))
+        return make_response(jsonify(selected_data))
+    except Exception as e:
+        return make_response(jsonify({'error': 'An error occurred while fetching the customers.', 'details': str(e)}), 500)
 
-#Implented in the frontend
+# Query Type 1: Select only necessary fields.
+# This endpoint returns all orders.
 @app.route('/api/all-orders', methods=['GET'])
 def select_all_orders():
-    selected_data = list(orders_collection.find({}))
-    return jsonify(selected_data)
+    try:
+        selected_data = list (orders_collection.find({}))
+        return make_response(jsonify(selected_data))
+    except Exception as e:
+        return make_response(jsonify({'error': 'An error occurred while fetching the orders.', 'details': str(e)}), 500)
 
 #Implented in the frontend
 @app.route('/api/find-orders-by-order-ids', methods=['GET'])
@@ -85,7 +103,7 @@ def find_orders_by_order_ids():
 
     if selected_data is None or len(selected_data) == 0:
         return make_response(jsonify({'error': order_ids}), 404)
-    return make_response(jsonify(selected_data),200)
+    return make_response(jsonify(selected_data), 200)
 
 #Implented in the frontend
 @app.route('/api/get-customer-by-customer-id', methods=['GET'])
@@ -216,23 +234,23 @@ def find_customers_by_name():
     return jsonify(matching_data)
 
 # Query Type 10: Left outer join. Retrieve orders with customer details
-@app.route('/api/get-orders-with-customer-details', methods=['GET'])
-def retrieve_orders_with_customer_details():
-    product_ids = [int(id) for id in request.args.getlist('product_ids')]  # Get list of product IDs from query parameters
-    lookup_doc = {
-        'from': 'customers',
-        'localField': 'customer_id',
-        'foreignField': '_id',
-        'as': 'customer'
-    }
-    match_doc = {
-        '$match': {'products.product_id': {'$in': product_ids}}
-    }
-    result = list(orders_collection.aggregate([match_doc, {'$lookup': lookup_doc}, {'$unwind': '$customer'}]))
+# @app.route('/api/get-orders-with-customer-details', methods=['GET'])
+# def retrieve_orders_with_customer_details():
+#     product_ids = [int(id) for id in request.args.getlist('product_ids')]  # Get list of product IDs from query parameters
+#     lookup_doc = {
+#         'from': 'customers',
+#         'localField': 'customer_id',
+#         'foreignField': '_id',
+#         'as': 'customer'
+#     }
+#     match_doc = {
+#         '$match': {'products.product_id': {'$in': product_ids}}
+#     }
+#     result = list(orders_collection.aggregate([match_doc, {'$lookup': lookup_doc}, {'$unwind': '$customer'}]))
 
-    if result is None or len(result) == 0:
-        return make_response(jsonify({'error': 'No orders found.'}), 404)
-    return make_response(jsonify(result), 200)
+#     if result is None or len(result) == 0:
+#         return make_response(jsonify({'error': 'No orders found.'}), 404)
+#     return make_response(jsonify(result), 200)
 
 # Ask Patrick about this (Data Transformations)
 # Query Type 11: Data transformations
@@ -265,39 +283,142 @@ def deconstruct_array():
     return make_response(jsonify(result))
 
 # Query Type 13: MapReduce
-@app.route('/api/map-reduce', methods=['GET'])
-def map_reduce():
-    # Use Case: Calculate the average price per category
-    map_function = '''
-        function () {
-            emit(this.category, this.price);
+def perform_map_reduce():
+    map_operation = {
+        "$group": {
+            "_id": "$customer_id",
+            "total_sales": {"$sum": "$total_price"}
         }
-    '''
-    reduce_function = '''
-        function (key, values) {
-            return Array.avg(values);
-        }
-    '''
-    result = products_collection.map_reduce(map_function, reduce_function, 'average_prices_by_category')
-    return jsonify([{'_id': item['_id'], 'average_price': item['value']} for item in db['average_prices_by_category'].find()])
+    }
+    result = orders_collection.aggregate([map_operation])
+    return list(result)
 
+
+# Perform Left Outer Join
+# Query Type 10
+def perform_left_outer_join():
+    pipeline = [
+        {'$unwind': '$products'},
+        {'$lookup': {'from': 'customers', 'localField': 'customer_id', 'foreignField': '_id', 'as': 'customer'}},
+        {'$unwind': '$customer'},
+        {'$lookup': {'from': 'products', 'localField': 'products.product_id', 'foreignField': '_id', 'as': 'product_details'}},
+        {'$unwind': '$product_details'},
+        {'$addFields': {'total_price': {'$multiply': ['$product_details.price', '$products.quantity']}}},
+        {'$group': {
+            '_id': {
+                'order_id': '$_id',
+                'product_id': '$products.product_id'
+            },
+            'customer_id': {'$first': '$customer_id'},
+            'order_date': {'$first': '$order_date'},
+            'customer_name': {'$first': '$customer.name'},
+            'product_name': {'$first': '$product_details.name'},
+            'quantity': {'$sum': '$products.quantity'},
+            'price': {'$first': '$product_details.price'},
+            'total_price': {'$sum': '$total_price'},
+            'delivery_status': {'$first': '$delivery_status'},
+            'order_status': {'$first': '$order_status'}
+        }},
+        {'$group': {
+            '_id': '$_id.order_id',
+            'customer_id': {'$first': '$customer_id'},
+            'order_date': {'$first': '$order_date'},
+            'customer_name': {'$first': '$customer_name'},
+            'products': {'$push': {'product_name': '$product_name', 'quantity': '$quantity', 'price': '$price', 'total_price': '$total_price'}},
+            'total_order_price': {'$sum': '$total_price'},
+            'total_quantity': {'$sum': '$quantity'},
+            'delivery_status': {'$first': '$delivery_status'},
+            'order_status': {'$first': '$order_status'}
+        }},
+    ]
+
+    result = list(orders_collection.aggregate(pipeline))
+
+    if result is None or len(result) == 0:
+        print('No orders found.')
+    else: 
+        return result
+    
+
+@app.route('/api/fetch-orders-with-details', methods=['GET'])
+def fetch_orders_details():
+    result = perform_left_outer_join()
+
+    # Iterating over the result provided by the left outer join
+    # Query 
+    # Refactor
+    for order in result:
+        order['total_quantity'] = sum(item['quantity'] for item in order['products']) if 'products' in order else 0
+
+    result_map_reduce = perform_map_reduce()
+
+    orders_with_details = []
+    for order in result:
+        transformed_order = {
+            'customerId': order['customer_id'],
+            'customerName': order.pop('customer_name'),
+            'orderDate': datetime.strptime(order.pop('order_date'), '%Y-%m-%d').strftime('%d-%m-%Y'),
+            'products': [
+                {
+                    'name': item['product_name'], 
+                    'quantity': item['quantity'], 
+                    'price': item['price'], 
+                    'totalPrice': item['total_price']
+                } 
+                for item in order.pop('products')
+            ],
+            'totalPrice': order.pop('total_order_price'),
+            'totalQuantity': order.pop('total_quantity'),
+            'totalSales': next((item['total_sales'] for item in result_map_reduce if item['_id'] == order['customer_id']), 0),
+            'deliveryStatus': order.pop('delivery_status'),
+            'orderStatus': order.pop('order_status'),
+            'id': order['_id'],
+        }
+        orders_with_details.append(transformed_order)
+
+    return make_response(jsonify(orders_with_details), 200)
+
+#Done
 # Query Type 14: Use aggregation expressions
 @app.route('/api/total-sales-per-customer', methods=['GET'])
-def aggregation():
-    # Use Case: Calculate the total sales per customer
-    pipeline = [
-        {
-            '$unwind': '$products'
-        },
-        {
-            '$group': {
-                '_id': '$customer_id',
-                'total_sales': {'$sum': '$products.price'}
+def total_sales_per_customer():
+    try:
+        pipeline = [
+            {
+                '$unwind': '$products'
+            },
+            {
+                '$lookup': {
+                    'from': 'products',
+                    'localField': 'products.product_id',
+                    'foreignField': '_id',
+                    'as': 'product_details'
+                }
+            },
+            {
+                '$unwind': '$product_details'
+            },
+            {
+                '$group': {
+                    '_id': '$customer_id',
+                    'total_sales': {
+                        '$sum': {
+                            '$multiply': ['$products.quantity', '$product_details.price']
+                        }
+                    }
+                }
             }
-        }
-    ]
-    result = orders_collection.aggregate(pipeline)
-    return jsonify(list(result))
+        ]
+        result = list(orders_collection.aggregate(pipeline))
+        if not result:
+            return make_response(jsonify({'error': 'No orders found'}), 404)
+
+        # Format the result to match the required output format
+        formatted_result = [{'customer_id': item['_id'], 'total_sale': round(item['total_sales'], 2)} for item in result]
+        return make_response(jsonify(formatted_result))
+
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
 
 # Query Type 15: Conditional Update
 #Implented in the frontend
@@ -367,8 +488,8 @@ def login():
             token = jwt.encode({
                 'id': str(admin['_id']),  # Convert ObjectId to string
                 'user': admin['username'],
-                'iat': datetime.datetime.utcnow(),
-                'exp': datetime.datetime.utcnow() + datetime. timedelta(hours=24)
+                'iat': datetime.utcnow(),
+                'exp': datetime.utcnow() + timedelta(hours=24)
             }, app.config['SECRET_KEY'])
             return make_response(jsonify({'token': token}), 200)
         else:
