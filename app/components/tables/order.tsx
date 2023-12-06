@@ -136,7 +136,7 @@ export default function  OrdersTable({ searchParams, sortByPrice, numProducts }:
                 ))}
               </TableCell>
               <TableCell className="p-3">
-              {order.products.map((item, index) => (
+              {order.products.map((item: any, index:number) => (
                   <div key={index}>
                     <span>{item.quantity}</span>
                   </div>
