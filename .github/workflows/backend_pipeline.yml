@@ -54,3 +54,7 @@ jobs:
     # Runs tests
     - name: Run tests
       run: pytest -v
+      env:
+        MONGO_URI: ${{ secrets.MONGO_URI }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
