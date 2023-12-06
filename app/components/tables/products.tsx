@@ -4,7 +4,7 @@
 'use client';
 
 // Imports
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@mui/material';
 import { Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell} from '@tremor/react';
 import ApiConnector from '@/app/ApiConnector/ApiConnector';
@@ -52,7 +52,7 @@ export default function ProductsTable({ searchParams, priceRange, sortOrder }: {
     const fetchData = async () => {
       let result: any[] = [];
       // If there is a search query, search for products by name.
-      if (searchParams.q !== '') {
+      if (searchParams.q && searchParams.q.length > 0) {
         result = await apiConnectorInstance.searchProductsByName(searchParams.q ?? '');
       } 
       // If there is a price range, find products within that price range.

@@ -9,7 +9,7 @@ import Footer from './components/footer';
 export const metadata = {
   title: 'Inventory Xpert',
   description:
-    `A user admin dashboard configured with Next.js, Flask and MongoDB.
+    `An admin dashboard configured with Next.js, Flask and MongoDB.
     COM 517 - Non-Relational Database Development Coursework.`
 };
 
