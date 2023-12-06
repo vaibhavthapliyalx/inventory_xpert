@@ -3,8 +3,8 @@
 // Imports
 import axios from "axios";
 import qs from "qs";
-import { Admin, Customer, Order, Product, TotalSalesForCustomer } from "../Shared/Interfaces";
-import { MembershipStatus, SortOrder } from "../Shared/Enums";
+import { Admin, Customer, Order, OrdersWithAllDetails, Product, TotalSalesForCustomer } from "../Shared/Interfaces";
+import { MembershipStatus, OrderStatus, SortOrder } from "../Shared/Enums";
 
 /**
  * @class ApiConnector
@@ -39,7 +39,7 @@ export default class ApiConnector {
   }
 
   /**
-   * This function sends a get request to the server to get the database connection status
+   * This function sends a GET request to the server to get the database connection status
    * by pinging the database.
    * 
    * @returns Promise<void> - The promise resolves if the database is connected, otherwise it rejects.
@@ -57,7 +57,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to get the server connection status.
+    * This function sends a GET request to the server to get the server connection status.
     * 
     * @returns Promise<void> - The promise resolves if the server is connected, otherwise it rejects.
     */
@@ -74,7 +74,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to get all the products from the database.
+    * This function sends a GET request to the server to get all the products from the database.
     * 
     * @returns Promise<Product[]> - The promise resolves if the products are fetched, otherwise it rejects.
     */
@@ -101,7 +101,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to get all the customers from the database.
+    * This function sends a GET request to the server to get all the customers from the database.
     * 
     * @returns Promise<Customer[]> - The promise resolves if the customers are fetched, otherwise it rejects.
     */
@@ -141,7 +141,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to get all the orders from the database.
+    * This function sends a GET request to the server to get all the orders from the database.
     * 
     * @returns Promise<Order[]> - The promise resolves if the orders are fetched, otherwise it rejects.
     */
@@ -182,7 +182,7 @@ export default class ApiConnector {
   }
 
    /**
-    * This function sends a get request to the server and fetches the products with the given categories.
+    * This function sends a GET request to the server and fetches the products with the given categories.
     * 
     * @param category The categories of the products to find.
     * @returns Promise<Product[]> - The promise resolves if the products are fetched, otherwise it rejects.
@@ -213,7 +213,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends the get request to the server to search a customer by its name.
+    * This function sends the GET request to the server to search a customer by its name.
     * 
     * @param name  The name of the customer to find.
     * @returns Promise<Customer[]> - The promise resolves if the customer is fetched, otherwise it rejects.
@@ -240,7 +240,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to search a customer by its name.
+    * This function sends a GET request to the server to search a customer by its name.
     * 
     * @param name The name of the customer to find.
     * @returns Promise<any>
@@ -280,7 +280,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server and finds a customer by its membership status.
+    * This function sends a GET request to the server and finds a customer by its membership status.
     * 
     * @param status The membership status of the customer to find.
     * @returns Promise<Customer[]>
@@ -308,7 +308,7 @@ export default class ApiConnector {
    }
    
    /**
-    * This function sends a get request to the server and finds a product within specified price range.
+    * This function sends a GET request to the server and finds a product within specified price range.
     * 
     * @param min Minimum price
     * @param max Maximum price
@@ -337,7 +337,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a post request to the server to update the order status.
+    * This function sends a PUT request to the server to update the order status.
     * 
     * @param orderId ID of the order to update.
     * @param status New status of the order. 
@@ -345,7 +345,7 @@ export default class ApiConnector {
     */
    async updateOrderStatus(orderId:number, status:string) : Promise<any> {
     return new Promise<any>((resolve, reject) => {
-      axios.post('/api/update-order-status', { order_id: orderId, order_status: status })
+      axios.put('/api/update-order-status', { order_id: orderId, order_status: status })
       .then((result:any) => {
         resolve(result);
       })
@@ -356,7 +356,7 @@ export default class ApiConnector {
    }
 
    /**
-    *  This function sends a get request to the server to find the products with the given categories.
+    *  This function sends a GET request to the server to find the products with the given categories.
     * 
     * @param categories  The categories of the products to find.
     * @returns  Promise<Product[]>
@@ -384,7 +384,7 @@ export default class ApiConnector {
    }
 
    /**
-    *  This function sends a get request to the server to retrieve the products sorted by price.
+    * This function sends a GET request to the server to retrieve the products sorted by price.
     * @param order The order of sorting.
     * @returns Promise<Product[]>
     */
@@ -416,7 +416,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to find the customer by its email address.
+    * This function sends a GET request to the server to find the customer by its email address.
     * 
     * @param email The email address of the customer to find.
     * @returns Promise<Customer[]>
@@ -443,7 +443,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to retrieve the customer by it's id.
+    * This function sends a GET request to the server to retrieve the customer by it's id.
     * 
     * @param customerId ID of the customer to find.
     * @returns Promise<Customer>
@@ -467,12 +467,12 @@ export default class ApiConnector {
     })
    }
 
-    /**
-      * This function sends a get request to the server to retrieve the customers by their order ids.
-      * 
-      * @param orderIds IDs of the order to find.
-      * @returns Promise<Order>
-      */
+   /**
+    * This function sends a GET request to the server to retrieve the customers by their order ids.
+    * 
+    * @param orderIds IDs of the order to find.
+    * @returns Promise<Order>
+    */
    async findCustomerByPreviousOrders(orderIds:number[]) : Promise<Customer[]> {
     return new Promise<Customer[]>((resolve, reject) => {
       axios.get('/api/find-customer-by-previous-orders',{
@@ -500,7 +500,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to search the products by their name.
+    * This function sends a GET request to the server to search the products by their name.
     * 
     * @param name The name of the product to find.
     * @returns  Promise<Product[]>
@@ -528,7 +528,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to find the orders by their order ids.
+    * This function sends a GET request to the server to find the orders by their order ids.
     * 
     * @param orderIds  The ids of the orders to find.
     * @returns  Promise<Order[]>
@@ -572,7 +572,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to find the products by their ids.
+    * This function sends a GET request to the server to find the products by their ids.
     * 
     * @param productIds  The ids of the products to find.
     * @returns  Promise<Product[]>
@@ -603,7 +603,7 @@ export default class ApiConnector {
    }
 
    /**
-    *  This function sends a get request to the server to get the total price of all the orders with the given ids.
+    *  This function sends a GET request to the server to get the total price of all the orders with the given ids.
     * 
     * @param orderIds  The ids of the orders to find.
     * @returns Promise<number>
@@ -621,7 +621,7 @@ export default class ApiConnector {
    }
 
    /**
-    * This function sends a get request to the server to retrieve all orders with all the details associated with it.
+    * This function sends a GET request to the server to retrieve all orders with all the details associated with it.
     * This includes the customer details and the product details.
     * 
     * @returns Promise<any> - The promise resolves if the orders are fetched, otherwise it rejects.
@@ -630,10 +630,24 @@ export default class ApiConnector {
     return new Promise<any[]>((resolve, reject) => {
       axios.get('/api/fetch-orders-with-details')
       .then((result:any) => {
-        console.log("this is in new func")
-        console.log(result.data);
-        let orders: Order[] = [];
-        resolve(result);
+        console.log(result)
+        let orders: OrdersWithAllDetails[] = [];
+        result.data.map((item:any, index:number) => {
+          let order: OrdersWithAllDetails = {
+            id: item.id,
+            customerId: item.customerId,
+            customerName: item.customerName,
+            products: item.products,
+            orderDate: item.orderDate,
+            totalPrice: item.totalPrice,
+            deliveryStatus: item.deliveryStatus,
+            orderStatus: item.orderStatus,
+            totalQuantity: item.totalQuantity,
+            totalSales: item.totalSales
+          };
+          orders.push(order);
+        })
+        resolve(orders);
       })
       .catch((result:any) => {
         reject(result.response.data);
@@ -642,7 +656,7 @@ export default class ApiConnector {
   }
 
   /**
-   * This function sends a get request to the server to retrieve the total sales for each customer.
+   * This function sends a GET request to the server to retrieve the total sales for each customer.
    * 
    * @returns Promise<TotalSalesForCustomer[]> - The promise resolves if the total sales are fetched, otherwise it rejects.
    */
@@ -665,11 +679,47 @@ export default class ApiConnector {
       })
     })
   }
-  
+
+  /**
+   * This function sends a GET request to the server to retrieve the orders with the given number of products.
+   * 
+   * @param num The number of products in the order.
+   */
+  async getOrdersWithNumProducts(num: number) {
+    return new Promise<any[]>((resolve, reject) => {
+      axios.get('/api/orders-with-number-of-products', { params: { num_products: num } })
+      .then((result:any) => {
+        console.log(num)
+        console.log(result)
+        let orders: OrdersWithAllDetails[] = [];
+        result.data.map((item:any) => {
+          let order: OrdersWithAllDetails = {
+            id: item.id,
+            customerId: item.customerId,
+            customerName: item.customerName,
+            products: item.products,
+            orderDate: item.orderDate,
+            totalPrice: item.totalPrice,
+            deliveryStatus: item.deliveryStatus,
+            orderStatus: item.orderStatus,
+            totalQuantity: item.totalQuantity,
+            totalSales: item.totalSales
+          };
+          orders.push(order);
+        })
+        resolve(orders);
+      })
+      .catch((result:any) => {
+        reject(result.response.data);
+      })
+    })
+    
+  }
+
    /************************** Authentication Handlers **************************/
 
    /**
-    * This function sends a post request to the server to sign up a new admin.
+    * This function sends a POST request to the server to sign up a new admin.
     * 
     * @param Admin The admin object that contains the admin details and signs up with these details.
     * @returns Promise<string> - The promise resolves if the admin is signed up, otherwise it rejects.
@@ -695,7 +745,7 @@ export default class ApiConnector {
   
 
   /**
-   * This function sends a post request to the server to login an admin.
+   * This function sends a POST request to the server to login an admin.
    * The admin is logged in if the username and password are correct.
    * If successful, the token is stored in the local storage.
    * This token is used to authenticate the admin for all the requests.
@@ -733,7 +783,7 @@ export default class ApiConnector {
   }   
 
   /**
-   * This function sends a get request to the server and validates the token,
+   * This function sends a GET request to the server and validates the token,
    * If the token is valid, the admin is logged out.
    * On successful logout, the token is removed from the local storage.
    * 
@@ -759,7 +809,7 @@ export default class ApiConnector {
   }
 
   /**
-   * This function sends a get request to the server and validates the token,
+   * This function sends a GET request to the server and validates the token,
    * If the token is valid, the logged in admin is returned.
    * 
    * @returns Promise<Admin> - The promise resolves if the admin is logged in, otherwise it rejects.

@@ -124,7 +124,7 @@ export interface OrdersWithAllDetails {
   deliveryStatus: string;
   orderStatus: OrderStatus;
   orderDate: string;
-  products: Product[];
+  products: [];
   totalPrice: number;
   totalQuantity: number;
   totalSales: number;

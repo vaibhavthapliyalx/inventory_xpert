@@ -37,6 +37,7 @@ export default function Dashboard({ searchParams } : { searchParams: {q?: string
   const [sortOrder, setSortOrder] = useState<SortOrder>(SortOrder.Ascending);
   const [priceRange, setPriceRange] = useState([0, 100]); 
   const [filter, setFilter] = useState<MembershipStatus|string>('All');
+  const [numberOfProducts, setNumberOfProducts] = useState<number>(0);
 
   // Uses the useRouter hook to get the router object.
   // This is helpful for redirecting the user to a different page by its path.
@@ -76,7 +77,7 @@ export default function Dashboard({ searchParams } : { searchParams: {q?: string
           <ProductsTable searchParams={searchParams} priceRange={priceRange} sortOrder={sortOrder} />
         );
       case TableType.Order:
-        return <OrdersTable searchParams={searchParams}/>;
+        return <OrdersTable searchParams={searchParams} numProducts={numberOfProducts}/>;
       default:
         return <CustomersTable searchParams={searchParams} filter={filter} />;
     }
@@ -108,26 +109,7 @@ export default function Dashboard({ searchParams } : { searchParams: {q?: string
         <Text className="text-lg mb-6 text-center animate-pulse">
           Manage your inventory efficiently, search for products, and keep track of the latest updates.
         </Text>
-        {/* Dashboard Summary Tiles */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Total Inventory Value */}
-          <Card className="p-4 bg-white rounded-md shadow-md focus:ring focus:border focus:ring-indigo-500">
-            <Title className="text-xl mb-2">Total Inventory Value</Title>
-            <Text className="text-2xl font-bold">£{}/-</Text>
-          </Card>        
-         {/* Stock Status */}
-         <Card className="p-4 bg-white rounded-md shadow-md focus:ring focus:border focus:ring-indigo-500">
-           <Title className="text-xl mb-2">Stock Status</Title>
-           <Text className="text-2xl font-bold">
-             In Stock: {} | Low Stock: {} | Out of Stock: {}
-           </Text>
-         </Card>        
-         {/* Top Selling Products */}
-         <Card className="p-4 bg-white rounded-md shadow-md col-span-2 focus:ring focus:border focus:ring-indigo-500">
-           <Title className="text-xl mb-2">Top Selling Products</Title>
-           {/* Add a component to display top-selling products here */}
-         </Card>
-         </div>
+        
         {/* Search Bar */}
         <div className="flex items-center justify-center mb-8">
           <div className="relative max-w-md w-full">
@@ -142,6 +124,20 @@ export default function Dashboard({ searchParams } : { searchParams: {q?: string
             <option value={TableType.Product}>Products</option>
             <option value={TableType.Order}>Orders</option>
           </select>
+        
+            { searchType === TableType.Order && (
+              <select
+                id="numberOfProducts"
+                className="px-4 py-2 relative mt-5 border border-gray-300 rounded-md ml-2 focus:outline-none focus:ring focus:border focus:ring-indigo-500 align-middle"
+                value={numberOfProducts}
+                onChange={(e) => setNumberOfProducts(parseInt(e.target.value))}
+                >
+                  <option value={0}>All Products</option>
+                  <option value={1}>1 Product</option>
+                  <option value={2}>2 Products</option>
+                  <option value={3}>3 Products</option>
+              </select>
+            )}
           
           {searchType === TableType.Customer ? (
             <select

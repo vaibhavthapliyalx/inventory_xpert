@@ -94,7 +94,7 @@ export default function CustomersTable({ searchParams, filter }: { searchParams:
    * 
    * @param customerId The customer ID of the customer whose row is to be expanded.
    */
-  function toggleRowExpansion(customerId: number): void{
+  function toggleRowExpansion(customerId: number): void {
     setExpandedRows((prevRows) => {
       const newRows = new Set(prevRows);
       if (newRows.has(customerId)) {
@@ -151,7 +151,7 @@ export default function CustomersTable({ searchParams, filter }: { searchParams:
             </Text>
           </TableHeaderCell>
           <TableHeaderCell className="p-3">
-            <UserIcon className="w-6 h-6 mr-2 inline-block" />
+            
             Name
           </TableHeaderCell>
           <TableHeaderCell className="p-3">

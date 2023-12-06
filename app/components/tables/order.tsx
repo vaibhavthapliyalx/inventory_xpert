@@ -9,6 +9,7 @@ import { Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell, Badg
 import ApiConnector from '@/app/ApiConnector/ApiConnector';
 import { BannerType, OrderStatus, SortOrder } from '@/app/Shared/Enums';
 import Banner from '../banner';
+import { OrdersWithAllDetails } from '@/app/Shared/Interfaces';
 
 // Grabs the instance of the ApiConnector Class (Singleton) which connects to the backend endpoints.
 const apiConnectorInstance = ApiConnector.getInstance();
@@ -20,9 +21,9 @@ const apiConnectorInstance = ApiConnector.getInstance();
  * @param sortByPrice The sort order.
  * @returns OrdersTable Component.
  */
-export default function  OrdersTable({ searchParams, sortByPrice }: { searchParams: { q?: string }, sortByPrice?: SortOrder }) {
+export default function  OrdersTable({ searchParams, sortByPrice, numProducts }: { searchParams: { q?: string }, sortByPrice?: SortOrder, numProducts: number }) {
   // State variables.
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<OrdersWithAllDetails[]>([]);
   const [notification, setNotification] = useState<{ message: string, type: BannerType }>({ message: '', type: BannerType.Success });
   
   /**
@@ -40,34 +41,41 @@ export default function  OrdersTable({ searchParams, sortByPrice }: { searchPara
   const [notificationKey, setNotificationKey] = useState(0);
 
   /** 
-   * Set up the data to be displayed in the table.
-   * This is causing the data being fetched slower than the table being rendered.
-   * ToDo: Find a way to render the table after the data is fetched 
-   * OR display a loading screen while the data is being fetched
-   * OR Optimize the procedure.(Not Urgent)
+   * Sets up the data to be displayed in the table.
    */
   useEffect(() => {
-    const fetchData = async () => {
-      const result = await apiConnectorInstance.getAllOrders();
-      let ordersWithDetails = [];
-      for (let order of result) {
-        order.orderDate = new Date(order.orderDate).toLocaleDateString();
-        const productsWithDetails = await apiConnectorInstance.findProductsByProductIDs(order.products.map((item: { product_id: any; }) => item.product_id));
-        const customerName = (await apiConnectorInstance.getCustomerByCustomerID(order.customerId)).name;
-        ordersWithDetails.push({ ...order,customerName: customerName, products: productsWithDetails, orderQuantity: order.products.map((item: { quantity: any; }) => item.quantity)});
-      }
-      console.log("this is with F.E. Implementation");
-      console.log(ordersWithDetails);
+    apiConnectorInstance.fetchAllOrdersWithDetails()
+    .then((result) => {
+      setOrders(result);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 
+  },[]);
+
+  // Sets up the data to be displayed based on number of products.
+  // If the number of products is not 0, then fetch the orders with the given number of products.
+  // Else fetch all the orders.
+  useEffect(() => {
+    if(numProducts !== 0) {
+      apiConnectorInstance.getOrdersWithNumProducts(numProducts)
+      .then((result) => {
+        setOrders(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    } else {
       apiConnectorInstance.fetchAllOrdersWithDetails()
       .then((result) => {
-        console.log("this is with B.E. Implementation");
-        console.log(result);
+        setOrders(result);
       })
-      setOrders(ordersWithDetails);
-    };
-    fetchData();
-  }, []);
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+  },[numProducts]);
 
 
   /**
@@ -83,7 +91,7 @@ export default function  OrdersTable({ searchParams, sortByPrice }: { searchPara
     .then((result) => {
       // Updates the order state with the new order status.
       setOrders(orders.map(order => order.id === orderId ? { ...order, orderStatus: newStatus } : order));
-
+      
       // Display the success message.
       setNotification({ message: result.data.message, type: BannerType.Success });
 
@@ -128,9 +136,9 @@ export default function  OrdersTable({ searchParams, sortByPrice }: { searchPara
                 ))}
               </TableCell>
               <TableCell className="p-3">
-              {order.orderQuantity.map((item: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
+              {order.products.map((item, index) => (
                   <div key={index}>
-                    <span>{item}</span>
+                    <span>{item.quantity}</span>
                   </div>
               ))}
               </TableCell>
