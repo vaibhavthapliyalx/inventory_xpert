@@ -19,13 +19,6 @@ jobs:
     
     runs-on: ubuntu-latest
 
-    # This allows the job to access the MongoDB service to run tests successfully
-    services:
-      mongodb:
-        image: mongo:4.2
-        ports:
-          - 27017:27017
-
     # Steps that the job will run
     steps:
     # Checks out a copy of your repository on the runner
@@ -60,4 +53,4 @@ jobs:
 
     # Runs tests
     - name: Run tests
-      run: pytest
+      run: pytest -v
