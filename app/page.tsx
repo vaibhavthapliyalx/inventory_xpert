@@ -90,7 +90,6 @@ export default function Dashboard({ searchParams } : { searchParams: {q?: string
    * @param newValue  The new value of the slider i.e. Array of numbers.
    */
   const handleSliderChange = (event: any, newValue: number | number[]) => {
-    console.log(newValue);
     setPriceRange(newValue as number[]);
   };
 
