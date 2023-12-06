@@ -4,24 +4,24 @@
 
 ## Overview
 
-Inventory Xpert is a web application developed for the Non-Relational Database Development coursework (COM517) at Ulster University (2023/24). The application combines a Next.js frontend, Flask backend, and MongoDB database, offering a seamless inventory management system. 
+Welcome to Inventory Xpert, a cutting-edge web application developed for the Non-Relational Database Development coursework (COM517) at Ulster University (2023/24). This powerful application seamlessly integrates a Next.js frontend, Flask backend, and MongoDB database, offering an unparalleled inventory management system.
 
 ## Description
 
-Inventory Xpert is based on an IKEA dataset, providing a comprehensive inventory of products, customer information, and order details. It facilitates efficient tracking, management, and analysis of stock and customer interactions.
+Inventory Xpert is built upon an IKEA dataset, providing a comprehensive inventory of products, customer information, and order details. It empowers you to efficiently track, manage, and analyze stock and customer interactions with ease.
 
 ## Tech Stack
 
 ### Frontend
 
-- **Next.js:** Frontend framework for building React applications.
-- **React:** JavaScript library for building user interfaces.
-- **Tailwind CSS:** Utility-first CSS framework for styling.
+- **Next.js:** A versatile framework for building React applications.
+- **React:** A powerful JavaScript library for constructing user interfaces.
+- **Tailwind CSS:** A utility-first CSS framework for flexible and rapid styling.
 
 ### Backend
 
-- **Flask:** Python web framework for building APIs.
-- **MongoDB:** NoSQL database for storing data.
+- **Flask:** A Python web framework for building APIs.
+- **MongoDB:** A NoSQL database for storing data.
 - **PyMongo:** MongoDB driver for Python.
 
 ### Development Tools
@@ -71,6 +71,10 @@ The application includes comprehensive testing using Pytest to guarantee the rel
     ```
 
 Visit [http://localhost:3000](http://localhost:3000) to explore the application.
+
+## Deployment
+
+Inventory Xpert is hosted on Vercel. Visit [Inventory Xpert on Vercel](https://inventory-xpert.vercel.app/login) to experience the live application.
 
 ## Disclaimer
 
