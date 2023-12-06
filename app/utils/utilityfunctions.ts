@@ -1,6 +1,16 @@
-import { Admin, Gender, Product, ProfilePhoto } from "../interface/CommonInterface";
+// This file contains all utility functions used in the application.
 
-export function getProfilePhoto(user: Admin): any {
+// Imports
+import { ProfilePhoto, Gender } from "../Shared/Enums";
+import { Admin, Product} from "../Shared/Interfaces";
+
+/**
+ *  This function returns the profile photo of the user.
+ * 
+ * @param user The user whose profile photo is to be returned. 
+ * @returns The profile photo of the user.
+ */
+export function getProfilePhoto(user: Admin | undefined): any {
     let image = require("../../public/assets/avatar_placeholder.png");
     if (user?.profilePhoto) {
         switch (user.profilePhoto) {
@@ -17,7 +27,13 @@ export function getProfilePhoto(user: Admin): any {
     return (image);
 }
 
-export function getProfilePhotoName(gender: Gender) {
+/**
+ * This function returns the profile photo i.e. the image name for the gender provided.
+ * 
+ * @param gender The gender for which the name is to be returned.
+ * @returns The image name.
+ */
+export function getProfilePhotoName(gender: Gender): string {
     console.log(gender)
     let profilePhotoName = 'avatar_placeholder.png';
     switch(gender) {
@@ -30,28 +46,15 @@ export function getProfilePhotoName(gender: Gender) {
       default:
         profilePhotoName = 'avatar_placeholder.png';
     }
-
     return profilePhotoName;
   }
 
+/**
+ * This function return the list of available product categories.
+ * 
+ * @returns The list of available product categories.
+ */
 export function getProductCategoriesList(): string[] {
  const productCategories = ["Tables", "Chairs", "Shelves", "Beds"];
   return productCategories;
-}
-
-// Helper Functions
-export function calculateTotalInventoryValue(products: Product[]): number {
-  return products.reduce((total, product) => total + (product.price * product.stockQuantity), 0);
-}
-
-export function calculateStockStatus(products: Product[]): number {
-  return products.reduce((total, product) => total + (product.stockQuantity > 0 ? 1 : 0), 0);
-}
-
-export function calculateLowStock(products: Product[]): number {
-  return products.reduce((total, product) => total + (product.stockQuantity > 0 && product.stockQuantity <= 10 ? 1 : 0), 0);
-}
-
-export function calculateOutOfStock(products: Product[]): number {
-  return products.reduce((total, product) => total + (product.stockQuantity === 0 ? 1 : 0), 0);
 }

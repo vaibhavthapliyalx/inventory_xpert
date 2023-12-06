@@ -1,27 +1,40 @@
+// This file wraps up the navbar component and handles the logic for the navbar.
+
+// Directive to use client side rendering.
 'use client';
+
+// Imports
 import { useEffect, useState } from 'react';
 import Navbar from './components/navbar';
-import CoreConnector from './InterfaceAPI/CoreConnector';
-import { Admin } from './interface/CommonInterface';
+import ApiConnector from './ApiConnector/ApiConnector';
+import { Admin } from './Shared/Interfaces';
 import { useRouter } from 'next/navigation';
 
-// Retrieve the singleton instance of CoreConnector Class.
-const coreConnectorInstance = CoreConnector.getInstance();
+// Grabs the instance of the ApiConnector Class (Singleton) which connects to the backend endpoints.
+const apiConnectorInstance = ApiConnector.getInstance();
 
 /**
  * Renders the navigation component.
+ * The navbar is only rendered if the user is logged in.
+ * If the user is not logged in, they are redirected to the login page.
  * 
  * @returns The rendered navigation component.
  */
 export default function Nav() {
-  const router = useRouter();
-  const [loggedin, setLoggedin] = useState<Admin>();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // State variables.
+  const[loggedin, setLoggedin] = useState<Admin>();
+  const[isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Uses the useRouter hook to get the router object.
+  // This is helpful for redirecting the user to a different page by its path.
+  const router = useRouter();
+
+  // This useEffect hook checks if the user is already logged in on initial render.
+  // If the user is not logged in, redirect them to the login page.
   useEffect(() => {
-    console.log("Fetching loggedin admin");
-    coreConnectorInstance.getLoggedInAdmin()
+    apiConnectorInstance.getLoggedInAdmin()
       .then((result : any) => {
+        console.log("Successfully fetched logged in admin.");
         console.log(result);
         setIsLoggedIn(true);
         setLoggedin(result);
@@ -35,26 +48,26 @@ export default function Nav() {
   }, []);
 
   /**
-   * Logs out the user and redirects to the login page.
+   * This function logs out the user and redirects to the login page.
    */
-  function logout() {
-    coreConnectorInstance.logout()
-      .then((result) => {
-        console.log(result);
-        setIsLoggedIn(false);
-        router.push('/login');
-      })
-      .catch((error) => {
-        setIsLoggedIn(true);
-        console.log(error);
-      });
-    }
+  function logout(): void {
+    apiConnectorInstance.logout()
+    .then((result) => {
+      setIsLoggedIn(false);
+      router.push('/login');
+    })
+    .catch((error) => {
+      setIsLoggedIn(true);
+      console.log(error);
+    });
+  }
 
+  /********************** Render Function **********************/
   return (
     <>
     { isLoggedIn && (
       <Navbar
-        user={loggedin}
+        admin={loggedin}
         onLogout={logout}
       /> 
     )}

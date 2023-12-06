@@ -1,25 +1,41 @@
+// This file contains the login page component.
+
+// Directive to use client side rendering.
 "use client";
 
-import { use, useEffect, useState } from 'react';
+// Imports
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/solid';
-import CoreConnector from '../InterfaceAPI/CoreConnector';
+import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import ApiConnector from '../ApiConnector/ApiConnector';
 import { Transition } from '@headlessui/react';
 
-const LoginPage: React.FC = () => {
-  const router = useRouter();
-  const coreConnectorInstance = CoreConnector.getInstance();
+// Grabs the instance of the ApiConnector Class (Singleton) which connects to the backend endpoints.
+const apiConnectorInstance = ApiConnector.getInstance();
+
+/**
+ * This function renders the login page component.
+ * 
+ * @returns The rendered login page component.
+ */
+export default function LoginPage() {
+  // State variables.
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
+  // Uses the useRouter hook to get the router object.
+  // This is helpful for redirecting the user to a different page by its path.
+  const router = useRouter();
 
-  // If user is already logged in, redirect to home page.
+  // This useEffect hook checks if the user is already logged in on initial render.
+  // If the user is alreay logged in, redirect them to the dashboard page.
+  // Otherwise, do nothing.
   useEffect(() => {
     async function checkLoggedIn() {
-      coreConnectorInstance.getLoggedInAdmin()
+      apiConnectorInstance.getLoggedInAdmin()
       .then((result) => {
         console.log(result);
         router.push('/');
@@ -28,13 +44,19 @@ const LoginPage: React.FC = () => {
         console.log(error);
       });
     }
+    // Check if the user is logged in.
     checkLoggedIn();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  /**
+   *  This function handles the submit event.
+   * 
+   * @param e The event object received from the form on submit.
+   */
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
-    coreConnectorInstance.login(formData.username, formData.password)
+    apiConnectorInstance.login(formData.username, formData.password)
     .then(() => {
       router.push('/');
     })
@@ -44,38 +66,38 @@ const LoginPage: React.FC = () => {
     .finally(() => {
       setIsSubmitting(false);
     });
-  };
+  }
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /**
+   * This function handles the change event for the form fields.
+   * 
+   * @param e The event object received from the form field.
+   */
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  }
 
+  /********************** Render Function **********************/
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div className="max-w-md w-full bg-white p-8 rounded-md shadow-md">
-      <div className="text-center mb-6">
-        <Image
-          src={require('../../public/assets/logo_stretched.png')}
-          alt="Logo"
-          width={130}
-          height={100}
-          className="mx-auto h-auto w-auto my-4"
-        />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
-          New User?{' '}
-          <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Register here.
-          </a>
-        </p>
+      <div className="max-w-md w-full bg-white p-8 rounded-md shadow-md">
+        <div className="text-center mb-6">
+          <Image
+            src={require('../../public/assets/logo_stretched.png')}
+            alt="Logo"
+            width={130}
+            height={100}
+            className="mx-auto h-auto w-auto my-4"
+          />
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+            <p className="mt-2 text-sm text-gray-600">
+            New User?{' '}
+            <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Register here.
+            </a>
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-         
           <input
             type="text"
             name="username"
@@ -102,7 +124,7 @@ const LoginPage: React.FC = () => {
             <button
               type="button"
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 cursor-pointer"
-              onClick={handleTogglePassword}
+              onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
                 <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
@@ -111,7 +133,8 @@ const LoginPage: React.FC = () => {
               )}
             </button>
           </div>
-  
+
+          {/* Displays the submitting animation */}  
           <Transition
             show={isSubmitting}
             enter="transition-opacity duration-300"
@@ -124,6 +147,7 @@ const LoginPage: React.FC = () => {
             <div className="text-gray-600">Submitting...</div>
           </Transition>
 
+          {/* Displays the error message */}
           {error && (
             <div className="flex items-center mt-4">
               <ExclamationCircleIcon className={`text-red-500 mr-2 ${error.length> 30 ?"h-10 w-10": "h-5 w-5" }`} aria-hidden="true" />
@@ -143,4 +167,3 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;

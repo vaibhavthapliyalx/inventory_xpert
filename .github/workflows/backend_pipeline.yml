@@ -53,4 +53,4 @@ jobs:
 
     # Runs tests
     - name: Run tests
-      run: pytest
+      run: pytest -v

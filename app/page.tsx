@@ -1,10 +1,16 @@
+// This file is the entry point for the application.
+// This file contains the dashboard page component.
+// All other components e.g. Tables, Navbar are rendered from this component.
+
+// Directive to use client side rendering.
 "use client";
-import { Card, Title, Text, Select, Table } from '@tremor/react';
+
+// Imports
+import { Card, Title, Text } from '@tremor/react';
 import Search from './components/search';
 import Slider from '@mui/material/Slider';
-import CoreConnector from './InterfaceAPI/CoreConnector';
+import ApiConnector from './ApiConnector/ApiConnector';
 import { useEffect, useState } from 'react';
-import { Admin,MembershipStatus,SortOrder, TableType } from './interface/CommonInterface';
 import { useRouter } from 'next/navigation';
 import Nav from './nav';
 import CustomersTable from './components/tables/customer';
@@ -12,36 +18,53 @@ import OrdersTable from './components/tables/order';
 import ProductsTable from './components/tables/products';
 import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { TableType, SortOrder, MembershipStatus } from './Shared/Enums';
+import { Admin } from './Shared/Interfaces';
 
-const coreConnectorInstance = CoreConnector.getInstance();
+// Grabs the instance of the ApiConnector Class (Singleton) which connects to the backend endpoints.
+const apiConnectorInstance = ApiConnector.getInstance();
 
-export default function Home({ searchParams } : { searchParams: {q?: string} }) {
-  const router = useRouter();
+/**
+ * This function renders the dashboard page component.
+ * 
+ * @param searchParams  The search query.
+ * @returns The rendered dashboard page component.
+ */
+export default function Dashboard({ searchParams } : { searchParams: {q?: string} }) {
+  // State variables.
   const [admin, setAdmin] = useState<Admin>();
-  const [searchType, setSearchType] = useState<TableType>(TableType.Customer); // Added searchType state
-  const [sortOrder, setSortOrder] = useState<SortOrder>(SortOrder.Ascending); // Added sortOrder state
-  const [priceRange, setPriceRange] = useState([0, 100]); // Added priceRange state
+  const [searchType, setSearchType] = useState<TableType>(TableType.Customer);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(SortOrder.Ascending);
+  const [priceRange, setPriceRange] = useState([0, 100]); 
   const [filter, setFilter] = useState<MembershipStatus|string>('All');
+  const [numberOfProducts, setNumberOfProducts] = useState<number>(0);
 
-  // Get the admin details from the backend
+  // Uses the useRouter hook to get the router object.
+  // This is helpful for redirecting the user to a different page by its path.
+  const router = useRouter();
+
+  // This useEffect hook checks if the user is already logged in on initial render.
+  // If the user is not logged in, redirect them to the login page.
   useEffect(() => {
-    coreConnectorInstance.getLoggedInAdmin()
+    apiConnectorInstance.getLoggedInAdmin()
     .then((result) => {
       setAdmin(result);
     })
     .catch((error) => {
       console.log(error);
-      // Redirect to login if the admin is not logged in
+      // Redirect to login page if the admin is not logged in
       router.push('/login');
     });
 
+    // Cleanup function to reset current logged in admin state when the component unmounts.
     return function cleanup() {
       setAdmin(undefined);
     }
   }, []);
-  
+
   /**
-   *  Renders the table based on the searchType.
+   * Renders the table based on the searchType.
+   * 
    * @param tableType  The type of table to be rendered.
    * @returns  The table to be rendered.
    */
@@ -54,14 +77,15 @@ export default function Home({ searchParams } : { searchParams: {q?: string} }) 
           <ProductsTable searchParams={searchParams} priceRange={priceRange} sortOrder={sortOrder} />
         );
       case TableType.Order:
-        return <OrdersTable searchParams={searchParams}/>;
+        return <OrdersTable searchParams={searchParams} numProducts={numberOfProducts}/>;
       default:
         return <CustomersTable searchParams={searchParams} filter={filter} />;
     }
   }
 
   /**
-   *  Updates the priceRange state when the slider is moved.
+   * Updates the priceRange state when the slider is moved.
+   * 
    * @param event  The event that triggered the change.
    * @param newValue  The new value of the slider i.e. Array of numbers.
    */
@@ -76,15 +100,7 @@ export default function Home({ searchParams } : { searchParams: {q?: string} }) 
     setFilter(event.target.value);
   }
 
-
-
-
-
-
-
-
-  
-
+  /********************** Render Function **********************/
   return (
     <>
       <Nav />
@@ -93,27 +109,8 @@ export default function Home({ searchParams } : { searchParams: {q?: string} }) 
         <Text className="text-lg mb-6 text-center animate-pulse">
           Manage your inventory efficiently, search for products, and keep track of the latest updates.
         </Text>
-       {/* Dashboard Summary Tiles */}
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-         {/* Total Inventory Value */}
-         <Card className="p-4 bg-white rounded-md shadow-md focus:ring focus:border focus:ring-indigo-500">
-           <Title className="text-xl mb-2">Total Inventory Value</Title>
-           <Text className="text-2xl font-bold">£{}/-</Text>
-         </Card>        
-         {/* Stock Status */}
-         <Card className="p-4 bg-white rounded-md shadow-md focus:ring focus:border focus:ring-indigo-500">
-           <Title className="text-xl mb-2">Stock Status</Title>
-           <Text className="text-2xl font-bold">
-             In Stock: {} | Low Stock: {} | Out of Stock: {}
-           </Text>
-         </Card>        
-         {/* Top Selling Products */}
-         <Card className="p-4 bg-white rounded-md shadow-md col-span-2 focus:ring focus:border focus:ring-indigo-500">
-           <Title className="text-xl mb-2">Top Selling Products</Title>
-           {/* Add a component to display top-selling products here */}
-         </Card>
-         </div>
-
+        
+        {/* Search Bar */}
         <div className="flex items-center justify-center mb-8">
           <div className="relative max-w-md w-full">
             <Search />
@@ -127,6 +124,20 @@ export default function Home({ searchParams } : { searchParams: {q?: string} }) 
             <option value={TableType.Product}>Products</option>
             <option value={TableType.Order}>Orders</option>
           </select>
+        
+            { searchType === TableType.Order && (
+              <select
+                id="numberOfProducts"
+                className="px-4 py-2 relative mt-5 border border-gray-300 rounded-md ml-2 focus:outline-none focus:ring focus:border focus:ring-indigo-500 align-middle"
+                value={numberOfProducts}
+                onChange={(e) => setNumberOfProducts(parseInt(e.target.value))}
+                >
+                  <option value={0}>All Products</option>
+                  <option value={1}>1 Product</option>
+                  <option value={2}>2 Products</option>
+                  <option value={3}>3 Products</option>
+              </select>
+            )}
           
           {searchType === TableType.Customer ? (
             <select
@@ -206,7 +217,7 @@ export default function Home({ searchParams } : { searchParams: {q?: string} }) 
           </Listbox>
           )}
         </div>
-          
+
           {/* Display tables based on searchType */}
           {displayTables(searchType)}
       </main>

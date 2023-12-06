@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Here, I have added a rewrite to the API path to point to the API server.
+  // This proxies the API requests from the Next.js app to the API server.
+  // This makes it possible to use the same domain for the Flask App and the Next.js App.
   rewrites: async () => {
     return [
       {
@@ -11,24 +14,11 @@ const nextConfig = {
       },
     ]
   },
+  // Here, localhost has been added to create a new domain for images.
   images: {
-    domains: ['localhost'], // Add your domain(s) here
+    domains: ['localhost'], 
     loader: 'default',
   }
 }
-// const withTM = require('next-transpile-modules')([
-//     '@mui/material',
-//     '@mui/system',
-//   ]);
-  
-//   const tm = withTM({
-//    webpack: (config) => {
-//      config.resolve.alias = {
-//        ...config.resolve.alias,
-//       '@mui/styled-engine': '@mui/styled-engine-sc',
-//       };
-//       return config;
-//     }
-//   });
 
 module.exports = nextConfig
