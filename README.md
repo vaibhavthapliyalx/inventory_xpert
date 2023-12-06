@@ -1,78 +1,79 @@
-<p align="center">
-  <a href="https://nextjs-flask-starter.vercel.app/">
-    <img src="https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png" height="96">
-    <h3 align="center">Next.js Flask Starter</h3>
-  </a>
-</p>
+# Inventory Xpert
 
-<p align="center">Simple Next.js boilerplate that uses <a href="https://flask.palletsprojects.com/">Flask</a> as the API backend.</p>
+![Inventory Xpert Logo](public/assets/logo_stretched.png)
 
-<br/>
+## Overview
 
-## Introduction
+Inventory Xpert is a web application developed for the Non-Relational Database Development coursework (COM517) at Ulster University (2023/24). The application combines a Next.js frontend, Flask backend, and MongoDB database, offering a seamless inventory management system. 
 
-This is a hybrid Next.js + Python app that uses Next.js as the frontend and Flask as the API backend. One great use case of this is to write Next.js apps that use Python AI libraries on the backend.
+## Description
 
-## How It Works
+Inventory Xpert is based on an IKEA dataset, providing a comprehensive inventory of products, customer information, and order details. It facilitates efficient tracking, management, and analysis of stock and customer interactions.
 
-The Python/Flask server is mapped into to Next.js app under `/api/`.
+## Tech Stack
 
-This is implemented using [`next.config.js` rewrites](https://github.com/vercel/examples/blob/main/python/nextjs-flask/next.config.js) to map any request to `/api/:path*` to the Flask API, which is hosted in the `/api` folder.
+### Frontend
 
-On localhost, the rewrite will be made to the `127.0.0.1:5328` port, which is where the Flask server is running.
+- **Next.js:** Frontend framework for building React applications.
+- **React:** JavaScript library for building user interfaces.
+- **Tailwind CSS:** Utility-first CSS framework for styling.
 
-In production, the Flask server is hosted as [Python serverless functions](https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/python) on Vercel.
+### Backend
 
-## Demo
+- **Flask:** Python web framework for building APIs.
+- **MongoDB:** NoSQL database for storing data.
+- **PyMongo:** MongoDB driver for Python.
 
-https://nextjs-flask-starter.vercel.app/
+### Development Tools
 
-## Deploy Your Own
+- **Concurrently:** Run Next.js and Flask servers simultaneously.
+- **Axios:** HTTP client for making API requests.
+- **JsonWebToken (JWT):** Secure user authentication.
+- **Pytest:** Testing framework for Python.
+- **Eslint:** Linting utility for code consistency.
 
-You can clone & deploy it to Vercel with one click:
+## Functionality
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-title=Next.js%20Flask%20Starter&demo-description=Simple%20Next.js%20boilerplate%20that%20uses%20Flask%20as%20the%20API%20backend.&demo-url=https%3A%2F%2Fnextjs-flask-starter.vercel.app%2F&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F795TzKM3irWu6KBCUPpPz%2F44e0c6622097b1eea9b48f732bf75d08%2FCleanShot_2023-05-23_at_12.02.15.png&project-name=Next.js%20Flask%20Starter&repository-name=nextjs-flask-starter&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fpython%2Fnextjs-flask&from=vercel-examples-repo)
+### NoSQL Queries
 
-## Developing Locally
+The backend supports a range of NoSQL queries, enabling efficient interaction with the IKEA dataset. Key functionalities include selecting necessary fields, matching values in arrays, text searches, and advanced operations like data transformations and map-reduce.
 
-You can clone & create this repo with the following command
+### Authentication
 
-```bash
-npx create-next-app nextjs-flask --example "https://github.com/vercel/examples/tree/main/python/nextjs-flask"
-```
+User login is secured using JSON Web Tokens (JWT), ensuring stateless and secure authentication.
 
-## Getting Started
+### Testing
 
-First, install the dependencies:
+[![Testing Server](https://github.com/vaibhavthapliyalx/inventory_xpert/actions/workflows/backend_pipeline.yml/badge.svg)](https://github.com/vaibhavthapliyalx/inventory_xpert/actions/workflows/backend_pipeline.yml)
 
-```bash
-npm install
-# or
-yarn
-# or
-pnpm install
-```
+The application includes comprehensive testing using Pytest to guarantee the reliability and correctness of the application's functionalities. The testing status can be checked using the badge above.
 
-Then, run the development server:
+## How to Run Locally
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+1. Clone the repository:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+    ```bash
+    git clone https://github.com/your-username/inventory_xpert.git
+    cd inventory-xpert
+    ```
 
-The Flask server will be running on [http://127.0.0.1:5328](http://127.0.0.1:5328) – feel free to change the port in `package.json` (you'll also need to update it in `next.config.js`).
+2. Install dependencies for both frontend and backend:
 
-## Learn More
+    ```bash
+    npm install
+    cd api && pip install -r requirements.txt
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+3. Run both servers concurrently:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Flask Documentation](https://flask.palletsprojects.com/en/1.1.x/) - learn about Flask features and API.
+    ```bash
+    npm run dev
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Visit [http://localhost:3000](http://localhost:3000) to explore the application.
+
+## Disclaimer
+
+This project, named Inventory Xpert, is intended for reference purposes only. It is not to be copied, and all code belongs to the original author. No warranty is provided, and it is solely for educational and reference purposes.
+
+Feel free to customize or enhance the README as needed.
