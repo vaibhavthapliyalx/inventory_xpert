@@ -6,7 +6,7 @@
 "use client";
 
 // Imports
-import { Card, Title, Text } from '@tremor/react';
+import { Title, Text } from '@tremor/react';
 import Search from './components/search';
 import Slider from '@mui/material/Slider';
 import ApiConnector from './ApiConnector/ApiConnector';
@@ -202,7 +202,7 @@ export default function Dashboard({ searchParams } : { searchParams: {q?: string
                                 valueLabelDisplay="auto"
                                 aria-labelledby="range-slider"
                                 min={0}
-                                max={100}
+                                max={250}
                                 className="mt-2"
                               />
                             <span className="text-sm text-gray-500">{`£${priceRange[0]} - £${priceRange[1]}`}</span>
