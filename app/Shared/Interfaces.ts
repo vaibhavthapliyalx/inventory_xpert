@@ -142,6 +142,18 @@ export interface TotalSalesForCustomer {
   totalSales: number;
 }
 
+/**
+ * @interface NumOrdersForCustomer
+ * This interface defines the structure of the number of orders for customer object.
+ * 
+ * @property {number} customerId - The id of the customer.
+ * @property {number} numOrders - The number of orders for the customer.
+ */
+export interface NumOrdersForCustomer {
+  customerId: number;
+  totalOrders: number;
+}
+
 
 
   

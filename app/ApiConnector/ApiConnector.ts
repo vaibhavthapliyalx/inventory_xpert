@@ -3,7 +3,7 @@
 // Imports
 import axios from "axios";
 import qs from "qs";
-import { Admin, Customer, Order, OrdersWithAllDetails, Product, TotalSalesForCustomer } from "../Shared/Interfaces";
+import { Admin, Customer, NumOrdersForCustomer, Order, OrdersWithAllDetails, Product, TotalSalesForCustomer } from "../Shared/Interfaces";
 import { MembershipStatus, OrderStatus, SortOrder } from "../Shared/Enums";
 
 /**
@@ -715,6 +715,31 @@ export default class ApiConnector {
     })
     
   }
+
+  /**
+   * This function sends a GET request to the server to retrieve the total number of orders for each customer.
+   * 
+   * @returns Promise<NumOrdersForCustomer[]>
+   */
+  async getNumOrdersForEachCustomer() {
+    return new Promise<NumOrdersForCustomer[]>((resolve, reject) => {
+      axios.get('/api/total-orders-per-customer')
+      .then((result:any) => {
+        let totalOrders:NumOrdersForCustomer[] = [];
+        result.data.map((item:any) => {
+          let obj: any = {
+            customerId: item.customer_id,
+            totalOrders: item.total_orders
+          }
+          totalOrders.push(obj);
+        })
+        resolve(totalOrders);
+      })
+      .catch((result:any) => {
+        reject(result.response.data);
+      })
+    })
+    }
 
    /************************** Authentication Handlers **************************/
 

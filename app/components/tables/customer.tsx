@@ -5,9 +5,9 @@
 
 // Imports
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell, Text } from '@tremor/react';
-import { ChevronDownIcon, AcademicCapIcon, EnvelopeIcon, MapPinIcon, ShoppingCartIcon, PhoneIcon, UserIcon } from '@heroicons/react/24/solid';
-import { Customer,TotalSalesForCustomer } from '../../Shared/Interfaces';
+import { Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell, Text, Icon } from '@tremor/react';
+import { ChevronDownIcon, AcademicCapIcon, EnvelopeIcon, MapPinIcon, ShoppingCartIcon, PhoneIcon, UserIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
+import { Customer,NumOrdersForCustomer,TotalSalesForCustomer } from '../../Shared/Interfaces';
 import { MembershipStatus } from '@/app/Shared/Enums';
 import ApiConnector from '../../ApiConnector/ApiConnector';
 
@@ -25,6 +25,7 @@ export default function CustomersTable({ searchParams, filter }: { searchParams:
   // State variables.
   const [customers, setCustomers] = useState<Customer[]>();
   const [totalSales, setTotalSales] = useState<TotalSalesForCustomer[]>();
+  const [numOrders, setNumOrders] = useState<NumOrdersForCustomer[]>();
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   // Set up the data to be displayed in the table on initial render.
@@ -32,9 +33,11 @@ export default function CustomersTable({ searchParams, filter }: { searchParams:
     const fetchData = async () => {
       const customers = await apiConnectorInstance.getAllCustomers();
       const totalSales = await apiConnectorInstance.getTotalSalesForEachCustomer();
-      
+      const totalOrders = await apiConnectorInstance.getNumOrdersForEachCustomer();
       // Set the data.
       setTotalSales(totalSales);
+      console.log(totalOrders)
+      setNumOrders(totalOrders);
 
       // Set the previous orders and products for each customer.
       await setPrevOrdersAndProducts(customers);
@@ -119,6 +122,18 @@ export default function CustomersTable({ searchParams, filter }: { searchParams:
   }
 
   /**
+   * This function returns the total number of orders of a customer.
+   * 
+   * @param customerId The customer ID of the customer whose total number of orders is to be fetched.
+   * @returns The total number of orders of the customer.
+   */
+  function getNumOrdersPerCustomer(customerId: number) {
+    if (!numOrders) return 0;
+    const customerNumOrders = numOrders.find((customer) => customer.customerId === customerId);
+    return customerNumOrders?.totalOrders ?? 0;
+  }
+
+  /**
    * This Asyncronous function is responsible for setting the previous orders and products for each customer.
    * 
    * @param customers The customers whose previous orders and products are to be set.
@@ -159,6 +174,10 @@ export default function CustomersTable({ searchParams, filter }: { searchParams:
             Total Sales
           </TableHeaderCell>
           <TableHeaderCell className="p-3 hidden md:table-cell">
+            <ShoppingBagIcon className="w-6 h-6 mr-2 inline-block" />
+            Total Orders
+          </TableHeaderCell>
+          <TableHeaderCell className="p-3 hidden md:table-cell">
             <EnvelopeIcon className="w-6 h-6 mr-2 inline-block" />
             Email
           </TableHeaderCell>
@@ -186,6 +205,7 @@ export default function CustomersTable({ searchParams, filter }: { searchParams:
               <TableCell className="p-3">{customer.id}</TableCell>
               <TableCell className="p-3">{customer.name}</TableCell>
               <TableCell className="p-3">£{getTotalSalesPerCustomer(customer.id)} /-</TableCell>
+              <TableCell className="p-3 hidden md:table-cell">{getNumOrdersPerCustomer(customer.id)}</TableCell>
               <TableCell className="p-3 hidden md:table-cell">{customer.contact.email}</TableCell>
               <TableCell className="p-3 hidden md:table-cell">{customer.contact.phone}</TableCell>
               <TableCell className="p-3 hidden lg:table-cell">{customer.contact.address}</TableCell>
