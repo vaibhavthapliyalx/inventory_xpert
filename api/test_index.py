@@ -103,6 +103,12 @@ def test_search_customers_by_name(client):
     data = json.loads(response.data)
     assert isinstance(data, list)
 
+def test_total_orders_per_customer(client):
+    response = client.get('/api/total-orders-per-customer')
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert isinstance(data, list)
+
 def test_fetch_orders_with_details(client):
     response = client.get('/api/fetch-orders-with-details')
     assert response.status_code == 200
