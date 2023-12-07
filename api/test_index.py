@@ -26,16 +26,19 @@ def test_all_products(client):
     response = client.get('/api/all-products')
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
+    assert isinstance(data, list)
 
 def test_all_orders(client):
     response = client.get('/api/all-orders')
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
+    assert isinstance(data, list)
 
 def test_all_customers(client):
     response = client.get('/api/all-customers')
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
+    assert isinstance(data, list)
 
 def test_get_customers_by_customer_id(client):
     response = client.get('/api/get-customer-by-customer-id?customer_id=301')
