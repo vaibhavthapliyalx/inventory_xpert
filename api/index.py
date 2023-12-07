@@ -56,20 +56,16 @@ def jwt_required(func):
     return jwt_required_wrapper
 
 # Checking for database connectivity.
-@jwt_required
 @app.route('/api/db_connectivity', methods=['GET'])
 def databaseStats():
     return client.admin.command('ping')
 
 # Checking for server connectivity.
-@jwt_required
 @app.route('/api/server_connectivity', methods=['GET'])
 def serverStats():
-    return jsonify({'message': 'Flask API is working!'})
+    return make_response(jsonify({'message': 'Flask API is working!'}), 200)
 
-# Query Type 1: Select only necessary fields.
 # This endpoint returns all products.
-@jwt_required
 @app.route('/api/all-products', methods=['GET'])
 def select_necessary_fields():
     try:
@@ -78,9 +74,7 @@ def select_necessary_fields():
     except Exception as e:
         return make_response(jsonify({'error': 'An error occurred while fetching the products.', 'details': str(e)}), 500)
 
-# Query Type 1: Select only necessary fields.
 # This endpoint returns all customers.
-@jwt_required
 @app.route('/api/all-customers', methods=['GET'])
 def select_all_customers():
     try:
@@ -89,20 +83,17 @@ def select_all_customers():
     except Exception as e:
         return make_response(jsonify({'error': 'An error occurred while fetching the customers.', 'details': str(e)}), 500)
 
-# Query Type 1: Select only necessary fields.
 # This endpoint returns all orders.
-@jwt_required
 @app.route('/api/all-orders', methods=['GET'])
 def select_all_orders():
     try:
-        selected_data = list (orders_collection.find({}))
+        selected_data = list(orders_collection.find({}))
         return make_response(jsonify(selected_data))
     except Exception as e:
         return make_response(jsonify({'error': 'An error occurred while fetching the orders.', 'details': str(e)}), 500)
 
 # Query Type 1: Select only necessary fields.
 # This endpoint searches for a customer by their customer id.
-@jwt_required
 @app.route('/api/get-customer-by-customer-id', methods=['GET'])
 def find_customer_by_customer_id():
     customer_id = request.args.get('customer_id', type=int)
@@ -116,7 +107,6 @@ def find_customer_by_customer_id():
 
 # Query Type 1: Select only necessary fields.
 # This endpoint returns all customers with the queried membership status.
-@jwt_required
 @app.route('/api/find-customers-by-membership-status', methods=['GET'])
 def find_customers_by_membership_status():
     try:
@@ -133,7 +123,6 @@ def find_customers_by_membership_status():
 
 # Query Type 2: Match values in an array
 # This endpoint returns orders by their order ids.
-@jwt_required
 @app.route('/api/find-orders-by-order-ids', methods=['GET'])
 def find_orders_by_order_ids():
     order_ids = request.args.getlist('order_ids', type=int)
@@ -146,7 +135,6 @@ def find_orders_by_order_ids():
 
 # Query Type 2: Match values in an array
 # This endpoint returns products by their product ids.
-@jwt_required
 @app.route('/api/find-products-by-product-ids', methods=['GET'])
 def find_products_by_product_ids():
     product_ids = request.args.getlist('product_ids', type=int)
@@ -158,7 +146,6 @@ def find_products_by_product_ids():
 
 # Query Type 2: Match values in an array
 # This endpoint returns products with the multiple categories queried.
-@jwt_required
 @app.route('/api/find-products-by-multiple-categories', methods=['GET'])
 def find_products_by_category():
     try:
@@ -174,7 +161,6 @@ def find_products_by_category():
 # Query Type 3: Match array elements with multiple criteria
 # Query Type 7: Match elements in arrays with criteria
 # This endpoint returns products within a price range.
-@jwt_required
 @app.route('/api/find-products-within-price-range', methods=['GET'])
 def find_products_within_price_range():
     try:
@@ -187,8 +173,7 @@ def find_products_within_price_range():
 
 # Query Type 4: Match arrays containing all specified elements
 # Query Type 8: Match arrays with all elements specified
-# This endpoint returns orders with specified number of products.
-@jwt_required
+# This endpoint returns orders with specified number of product types/categories.
 @app.route('/api/orders-with-number-of-products', methods=['GET'])
 def get_orders_by_number_of_products():
     try:
@@ -209,7 +194,6 @@ def get_orders_by_number_of_products():
 
 # Query Type 5: Iterate over result sets
 # This endpoint returns products sorted by price specified.
-@jwt_required
 @app.route('/api/products-sorted-by-price', methods=['GET'])
 def products_sorted_by_price():
     try: 
@@ -225,8 +209,7 @@ def products_sorted_by_price():
         return make_response(jsonify({'error': str(e)}), 500)
 
 # Query Type 6: Query embedded documents and arrays
-# This endpoint finds the customers with the specified email address.
-@jwt_required
+# This endpoint finds the customers with the specified email address.(case sensitive)
 @app.route('/api/find-customer-by-email', methods=['GET'])
 def find_customer_by_email():
     target_email = request.args.get('email')
@@ -240,7 +223,6 @@ def find_customer_by_email():
 
 # Query Type 9: Perform text search
 # This endpoint searches for products by their name query parameter (case-insensitive).
-@jwt_required
 @app.route('/api/search-products-by-name', methods=['GET'])
 def search_products_by_name():
     # Use Case: Search for products by name (case-insensitive)
@@ -250,7 +232,6 @@ def search_products_by_name():
 
 # Query Type 9: Perform text search
 # This endpoint searches for customers by their name query parameter (case-insensitive).
-@jwt_required
 @app.route('/api/search-customers-by-name', methods=['GET'])
 def find_customers_by_name():
     # Use Case: Find customers with a name containing the specified input
@@ -280,7 +261,6 @@ def perform_map_reduce(collection):
 Query Type 10: Left outer join, Query Type 12: Deconstruct array into separate documents & Query Type 14: Use aggregation expressions.
 
 This function performs a left outer join operation on the collection provided as a param.
-This function performs a left outer join operation on the collection.
 It uses MongoDB's aggregation pipeline to first unwind the products array in each document,
 then performs a lookup (join) operation with the customers and products collections.
 It calculates the total price for each product in an order, groups the documents by order and product ID,
@@ -327,7 +307,35 @@ def perform_left_outer_join(collection):
     else: 
         return result
 
+# Query Type 11: Data transformations, Query Type 14: Use aggregation expressions, Query Type 12: Deconstruct array into separate documents
+# This endpoint returns the total number of orders for each customer.
+@app.route('/api/total-orders-per-customer', methods=['GET'])
+def total_orders_per_customer():
+    pipeline = [
+        {"$lookup": {
+            "from": "orders",
+            "localField": "_id",
+            "foreignField": "customer_id",
+            "as": "customer_orders"
+        }},
+        # Query Type 12: Deconstruct array into separate documents.
+        {"$unwind": "$customer_orders"},
+        {"$group": {
+            "_id": "$_id",
+            "total_orders": {"$sum": 1}
+        }},
+        {"$project": {
+            "customer_id": "$_id",
+            "total_orders": 1,
+            "_id": 0
+        }}
+    ]
+    results = list(customers_collection.aggregate(pipeline))
 
+    if results is None or len(results) == 0:
+        return make_response(jsonify({'error': 'No customers found'}), 404)
+
+    return make_response(jsonify(results), 200)
 '''
 Query Type 11: Data transformations
 This function performs a data transformation operation on the data provided as a param.
@@ -399,7 +407,6 @@ def fetch_orders_details():
 # Query Type 14: Use aggregation expressions
 # This endpoint returns the total sales for each customer.
 # It performs an aggregation operation using MongoDB's aggregation pipeline.
-@jwt_required
 @app.route('/api/total-sales-per-customer', methods=['GET'])
 def total_sales_per_customer():
     try:
@@ -437,8 +444,6 @@ def total_sales_per_customer():
 # Query Type 15: Conditional Update
 # This endpoint updates the order status of an order.
 # It takes the order ID and the new order status as input.
-# It performs an update operation using MongoDB's update_one method.
-@jwt_required
 @app.route('/api/update-order-status', methods=['PUT'])
 def update_order_status():
     # Use Case: Update the status of an order
