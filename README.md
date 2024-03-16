@@ -53,7 +53,7 @@ The application includes comprehensive testing using Pytest to guarantee the rel
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/inventory_xpert.git
+    git clone https://github.com/vaibhavthapliyalx/inventory_xpert.git
     cd inventory-xpert
     ```
 
