@@ -79,5 +79,3 @@ Inventory Xpert is hosted on Vercel. Visit [Inventory Xpert on Vercel](https://i
 ## Disclaimer
 
 This project, named Inventory Xpert, is intended for reference purposes only. It is not to be copied, and all code belongs to the original author. No warranty is provided, and it is solely for educational and reference purposes.
-
-Feel free to customize or enhance the README as needed.
